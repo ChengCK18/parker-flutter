@@ -9,22 +9,91 @@ class ControlVec extends StatefulWidget {
 
 class _ControlVecState extends State<ControlVec>
     with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-
+  late Animation<double> animation;
+  late AnimationController controller;
+  Color color1 = Colors.greenAccent;
+  Color color2 = Colors.cyan;
+  bool buttonOn = false;
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this);
-  }
+    controller =
+        AnimationController(duration: const Duration(seconds: 1), vsync: this);
+    animation = Tween<double>(begin: 2, end: 20).animate(controller)
+      ..addListener(() {
+        setState(() {});
+      });
 
-  @override
-  void dispose() {
-    super.dispose();
-    _controller.dispose();
+    controller.forward();
+    controller.repeat(reverse: true);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(child: Text("Container 2"));
+    return Container(
+        child: InkWell(
+            splashColor: Colors.white,
+            customBorder: const CircleBorder(),
+            onTap: () {
+              if (buttonOn) {
+                color1 = Colors.black;
+
+                buttonOn = !buttonOn;
+              } else {
+                color1 = Colors.greenAccent;
+
+                buttonOn = !buttonOn;
+              }
+
+              print("Container clicked");
+            },
+            child: Ink(
+              child: IconButton(
+                  icon: Icon(Icons.car_crash, size: 60.0),
+                  color: Colors.white,
+                  onPressed: null),
+              height: 48,
+              width: 160,
+              decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: LinearGradient(
+                    colors: [
+                      color1,
+                      color2,
+                    ],
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: color1.withOpacity(0.4),
+                      spreadRadius: 1,
+                      blurRadius: animation.value,
+                      offset: Offset(-8, 0),
+                    ),
+                    BoxShadow(
+                      color: color2.withOpacity(0.4),
+                      spreadRadius: 1,
+                      blurRadius: animation.value,
+                      offset: Offset(8, 0),
+                    ),
+                    BoxShadow(
+                      color: color1.withOpacity(0.2),
+                      spreadRadius: 16,
+                      blurRadius: 32,
+                      offset: Offset(-8, 0),
+                    ),
+                    BoxShadow(
+                      color: color2.withOpacity(0.2),
+                      spreadRadius: 16,
+                      blurRadius: 32,
+                      offset: Offset(8, 0),
+                    )
+                  ]),
+            )));
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
   }
 }
