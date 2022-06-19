@@ -1,21 +1,19 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 
-class DropdownVec extends StatefulWidget {
-  const DropdownVec({Key? key}) : super(key: key);
+class TogglePersonalVehicle extends StatefulWidget {
+  const TogglePersonalVehicle({Key? key}) : super(key: key);
 
   @override
-  State<DropdownVec> createState() => _DropdownVecState();
+  State<TogglePersonalVehicle> createState() => _TogglePersonalVehicleState();
 }
 
-class _DropdownVecState extends State<DropdownVec>
+class _TogglePersonalVehicleState extends State<TogglePersonalVehicle>
     with SingleTickerProviderStateMixin {
   late Animation<double> animation;
   late AnimationController controller;
   Color color1 = Colors.greenAccent;
   Color color2 = Colors.cyan;
-  bool buttonOn = false;
+  bool buttonOn = true;
   @override
   void initState() {
     super.initState();

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:parker/dropdown_vec.dart';
-import 'dropdown_vec.dart';
-import 'control_vec.dart';
+import 'package:parker/register_vec.dart';
+import 'package:parker/request_vec.dart';
+import 'toggle_personal_vehicle.dart';
+import 'register_vec.dart';
+import 'alert_target_vehicle.dart';
 
 void main() {
   runApp(const MyApp());
@@ -24,7 +26,7 @@ class MyApp extends StatelessWidget {
             displayColor: Colors.blue,
           ),
           scaffoldBackgroundColor: const Color(0xff10002b)),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(title: 'App Name'),
     );
   }
 }
@@ -60,55 +62,49 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            Expanded(flex: 2, child: ControlVec()),
             Expanded(
                 flex: 1,
-                child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      SizedBox(
-                        width: 150,
-                        child: TextFormField(
-                          textAlign: TextAlign.center,
-                          initialValue: vecPlateNum,
-                          style: TextStyle(color: Colors.white),
-                          decoration: const InputDecoration(
-                            filled: true,
-                            alignLabelWithHint: true,
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.cyan),
-                            ),
-                            //[focusedBorder], displayed when [TextField, InputDecorator.isFocused] is true
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.cyan),
-                            ),
-                            labelText: 'Registered Vehicle',
-                            labelStyle: TextStyle(color: Colors.white),
+                child: Container(
+                    margin: const EdgeInsets.only(top: 15),
+                    child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: <Widget>[
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: const <Widget>[Text('Personal (Online)')],
                           ),
-                        ),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {},
-                        child: Icon(Icons.app_registration_rounded,
-                            color: Colors.white),
-                        style: ElevatedButton.styleFrom(
-                          shape: CircleBorder(),
-                          padding: EdgeInsets.all(12),
-                          primary: Colors.cyan, // <-- Button color
-                          onPrimary: Colors.white, // <-- Splash color
-                        ),
-                      )
-                    ])),
-            Expanded(flex: 3, child: Text("More stuff heree"))
+                        ]))),
+            Expanded(flex: 2, child: TogglePersonalVehicle()),
+            Expanded(flex: 1, child: RegisterVec()),
+            Expanded(
+                flex: 1,
+                child: Container(
+                    margin:
+                        const EdgeInsets.only(left: 25.0, right: 25.0, top: 10),
+                    decoration: const BoxDecoration(
+                        border: Border(
+                            top: BorderSide(color: Colors.cyan, width: 2))),
+                    child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: <Widget>[
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              Container(
+                                  margin: const EdgeInsets.only(top: 10),
+                                  child: const Text('Alert Target Vehicle'))
+                            ],
+                          ),
+                        ]))),
+            Expanded(flex: 2, child: AlertTargetVehicle()),
+            Expanded(flex: 1, child: RequestVec())
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+
+      // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
