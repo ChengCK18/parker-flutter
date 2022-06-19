@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 
-class RequestVec extends StatefulWidget {
-  const RequestVec({Key? key}) : super(key: key);
+class TargetVehicleNotifyField extends StatefulWidget {
+  const TargetVehicleNotifyField({Key? key}) : super(key: key);
 
   @override
-  State<RequestVec> createState() => _RequestVecState();
+  State<TargetVehicleNotifyField> createState() =>
+      _TargetVehicleNotifyFieldState();
 }
 
-class _RequestVecState extends State<RequestVec> {
+class _TargetVehicleNotifyFieldState extends State<TargetVehicleNotifyField> {
   @override
   Widget build(BuildContext context) {
     return Container(

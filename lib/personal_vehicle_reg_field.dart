@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 
-class RegisterVec extends StatefulWidget {
-  const RegisterVec({Key? key}) : super(key: key);
+class PersonalVehicleRegField extends StatefulWidget {
+  const PersonalVehicleRegField({Key? key}) : super(key: key);
 
   @override
-  State<RegisterVec> createState() => _RegisterVecState();
+  State<PersonalVehicleRegField> createState() =>
+      _PersonalVehicleRegFieldState();
 }
 
-class _RegisterVecState extends State<RegisterVec> {
+class _PersonalVehicleRegFieldState extends State<PersonalVehicleRegField> {
   @override
   Widget build(BuildContext context) {
     return Container(

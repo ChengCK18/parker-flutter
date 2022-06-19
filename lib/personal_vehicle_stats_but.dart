@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 
-class AlertTargetVehicle extends StatefulWidget {
-  const AlertTargetVehicle({Key? key}) : super(key: key);
+class PersonalVehicleStatsBut extends StatefulWidget {
+  const PersonalVehicleStatsBut({Key? key}) : super(key: key);
 
   @override
-  State<AlertTargetVehicle> createState() => _AlertTargetVehicleState();
+  State<PersonalVehicleStatsBut> createState() =>
+      _PersonalVehicleStatsButState();
 }
 
-class _AlertTargetVehicleState extends State<AlertTargetVehicle>
+class _PersonalVehicleStatsButState extends State<PersonalVehicleStatsBut>
     with SingleTickerProviderStateMixin {
   late Animation<double> animation;
   late AnimationController controller;

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class TogglePersonalVehicle extends StatefulWidget {
-  const TogglePersonalVehicle({Key? key}) : super(key: key);
+class TargetVehicleNotifyBut extends StatefulWidget {
+  const TargetVehicleNotifyBut({Key? key}) : super(key: key);
 
   @override
-  State<TogglePersonalVehicle> createState() => _TogglePersonalVehicleState();
+  State<TargetVehicleNotifyBut> createState() => _TargetVehicleNotifyButState();
 }
 
-class _TogglePersonalVehicleState extends State<TogglePersonalVehicle>
+class _TargetVehicleNotifyButState extends State<TargetVehicleNotifyBut>
     with SingleTickerProviderStateMixin {
   late Animation<double> animation;
   late AnimationController controller;
@@ -48,7 +48,7 @@ class _TogglePersonalVehicleState extends State<TogglePersonalVehicle>
         },
         child: Ink(
           child: IconButton(
-              icon: Icon(Icons.car_crash, size: 60.0),
+              icon: Icon(Icons.notifications, size: 60.0),
               color: Colors.white,
               onPressed: null),
           height: 48,

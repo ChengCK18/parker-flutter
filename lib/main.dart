@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:parker/register_vec.dart';
-import 'package:parker/request_vec.dart';
-import 'toggle_personal_vehicle.dart';
-import 'register_vec.dart';
-import 'alert_target_vehicle.dart';
+import 'package:parker/personal_vehicle_reg_field.dart';
+import 'package:parker/target_vehicle_notify_field.dart';
+import 'package:parker/personal_vehicle_stats_but.dart';
+import 'package:parker/target_vehicle_notify_but.dart';
 
 void main() {
   runApp(const MyApp());
@@ -18,9 +17,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-          textTheme: TextTheme(
-            bodyText1: TextStyle(),
-            bodyText2: TextStyle(),
+          textTheme: const TextTheme(
+            bodyText1: TextStyle(), //TBD
+            bodyText2: TextStyle(), //TBD
           ).apply(
             bodyColor: Colors.white,
             displayColor: Colors.blue,
@@ -41,21 +40,14 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
   String vecPlateNum = "None";
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        backgroundColor: Color(0xFF240046),
+        backgroundColor: const Color(0xFF240046),
         title: Text(widget.title),
       ),
       body: Center(
@@ -75,8 +67,8 @@ class _MyHomePageState extends State<MyHomePage> {
                             children: const <Widget>[Text('Personal (Online)')],
                           ),
                         ]))),
-            Expanded(flex: 2, child: TogglePersonalVehicle()),
-            Expanded(flex: 1, child: RegisterVec()),
+            Expanded(flex: 2, child: PersonalVehicleStatsBut()),
+            Expanded(flex: 1, child: PersonalVehicleRegField()),
             Expanded(
                 flex: 1,
                 child: Container(
@@ -94,12 +86,12 @@ class _MyHomePageState extends State<MyHomePage> {
                             children: <Widget>[
                               Container(
                                   margin: const EdgeInsets.only(top: 10),
-                                  child: const Text('Alert Target Vehicle'))
+                                  child: const Text('Notify Target Vehicle'))
                             ],
                           ),
                         ]))),
-            Expanded(flex: 2, child: AlertTargetVehicle()),
-            Expanded(flex: 1, child: RequestVec())
+            Expanded(flex: 2, child: TargetVehicleNotifyBut()),
+            Expanded(flex: 1, child: TargetVehicleNotifyField())
           ],
         ),
       ),
