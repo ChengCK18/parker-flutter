@@ -66,7 +66,7 @@ class _TargetVehicleNotifyButState extends State<TargetVehicleNotifyBut>
         },
         child: Ink(
           child: IconButton(
-              icon: Icon(getIcon(), size: 60.0),
+              icon: Icon(getIcon(), size: 40.0),
               color: Colors.white,
               onPressed: null),
           height: 48,

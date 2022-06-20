@@ -50,7 +50,7 @@ class _PersonalVehicleStatsButState extends State<PersonalVehicleStatsBut>
         },
         child: Ink(
           child: IconButton(
-              icon: Icon(Icons.car_crash, size: 60.0),
+              icon: Icon(Icons.car_crash, size: 40.0),
               color: Colors.white,
               onPressed: null),
           height: 48,

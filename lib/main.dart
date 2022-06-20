@@ -44,6 +44,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    //final screenSize = MediaQuery.of(context).size;
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -54,26 +56,29 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
+            SizedBox(height: 10),
             Expanded(
-                flex: 1,
-                child: Container(
-                    margin: const EdgeInsets.only(top: 15),
-                    child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: <Widget>[
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: const <Widget>[Text('Personal (Online)')],
-                          ),
-                        ]))),
+              flex: 1,
+              child: Container(
+                  margin: EdgeInsets.all(1),
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: <Widget>[
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const <Widget>[Text('Personal (Online)')],
+                        ),
+                      ])),
+            ),
             Expanded(flex: 2, child: PersonalVehicleStatsBut()),
-            Expanded(flex: 1, child: PersonalVehicleRegField()),
+            Expanded(flex: 2, child: PersonalVehicleRegField()),
+            SizedBox(height: 10),
             Expanded(
                 flex: 1,
                 child: Container(
                     margin:
-                        const EdgeInsets.only(left: 25.0, right: 25.0, top: 10),
+                        const EdgeInsets.only(left: 25.0, right: 25.0, top: 0),
                     decoration: const BoxDecoration(
                         border: Border(
                             top: BorderSide(color: Colors.cyan, width: 2))),
@@ -85,13 +90,13 @@ class _MyHomePageState extends State<MyHomePage> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
                               Container(
-                                  margin: const EdgeInsets.only(top: 10),
+                                  margin: const EdgeInsets.only(top: 0),
                                   child: const Text('Notify Target Vehicle'))
                             ],
                           ),
                         ]))),
             Expanded(flex: 2, child: TargetVehicleNotifyBut()),
-            Expanded(flex: 1, child: TargetVehicleNotifyField())
+            Expanded(flex: 2, child: TargetVehicleNotifyField())
           ],
         ),
       ),
