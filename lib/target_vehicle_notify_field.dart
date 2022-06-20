@@ -40,8 +40,7 @@ class _TargetVehicleNotifyFieldState extends State<TargetVehicleNotifyField> {
               ),
               ElevatedButton(
                 onPressed: () {},
-                child:
-                    Icon(Icons.app_registration_rounded, color: Colors.white),
+                child: Icon(Icons.send, color: Colors.white),
                 style: ElevatedButton.styleFrom(
                   shape: CircleBorder(),
                   padding: EdgeInsets.all(12),

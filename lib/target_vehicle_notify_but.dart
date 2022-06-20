@@ -11,15 +11,16 @@ class _TargetVehicleNotifyButState extends State<TargetVehicleNotifyBut>
     with SingleTickerProviderStateMixin {
   late Animation<double> animation;
   late AnimationController controller;
-  Color color1 = Colors.greenAccent;
-  Color color2 = Colors.cyan;
-  bool buttonOn = true;
+  Color color1 = Colors.grey.shade700;
+  Color color2 = Colors.grey.shade500;
+  int buttonStatus = 0; //0,not sent, 1 = sending, 2 = sent
+
   @override
   void initState() {
     super.initState();
     controller =
         AnimationController(duration: const Duration(seconds: 1), vsync: this);
-    animation = Tween<double>(begin: 2, end: 20).animate(controller)
+    animation = Tween<double>(begin: 0, end: 16).animate(controller)
       ..addListener(() {
         setState(() {});
       });
@@ -28,27 +29,44 @@ class _TargetVehicleNotifyButState extends State<TargetVehicleNotifyBut>
     controller.repeat(reverse: true);
   }
 
+  IconData getIcon() {
+    if (buttonStatus == 0) {
+      return Icons.notifications;
+    } else if (buttonStatus == 1) {
+      return Icons.pending;
+    } else {
+      return Icons.check;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return InkWell(
         splashColor: Colors.white,
         customBorder: const CircleBorder(),
         onTap: () {
-          if (buttonOn) {
-            color1 = Colors.black;
+          if (buttonStatus == 0) {
+            color1 = Colors.yellow.shade700;
+            color2 = Colors.yellow.shade600;
 
-            buttonOn = !buttonOn;
-          } else {
+            buttonStatus = 1;
+          } else if (buttonStatus == 1) {
             color1 = Colors.greenAccent;
+            color2 = Colors.cyan;
+            buttonStatus = 2;
 
-            buttonOn = !buttonOn;
+            Future.delayed(const Duration(milliseconds: 5000), () {
+              color1 = Colors.grey.shade700;
+              color2 = Colors.grey.shade500;
+              buttonStatus = 0;
+            });
           }
 
           print("Container clicked");
         },
         child: Ink(
           child: IconButton(
-              icon: Icon(Icons.notifications, size: 60.0),
+              icon: Icon(getIcon(), size: 60.0),
               color: Colors.white,
               onPressed: null),
           height: 48,
@@ -64,25 +82,25 @@ class _TargetVehicleNotifyButState extends State<TargetVehicleNotifyBut>
               boxShadow: [
                 BoxShadow(
                   color: color1.withOpacity(0.4),
-                  spreadRadius: 1,
+                  spreadRadius: 2,
                   blurRadius: animation.value,
                   offset: Offset(-8, 0),
                 ),
                 BoxShadow(
                   color: color2.withOpacity(0.4),
-                  spreadRadius: 1,
+                  spreadRadius: 2,
                   blurRadius: animation.value,
                   offset: Offset(8, 0),
                 ),
                 BoxShadow(
                   color: color1.withOpacity(0.2),
-                  spreadRadius: 16,
+                  spreadRadius: 6,
                   blurRadius: 32,
                   offset: Offset(-8, 0),
                 ),
                 BoxShadow(
                   color: color2.withOpacity(0.2),
-                  spreadRadius: 16,
+                  spreadRadius: 6,
                   blurRadius: 32,
                   offset: Offset(8, 0),
                 )

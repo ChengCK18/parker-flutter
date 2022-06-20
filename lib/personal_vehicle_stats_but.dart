@@ -36,12 +36,13 @@ class _PersonalVehicleStatsButState extends State<PersonalVehicleStatsBut>
         customBorder: const CircleBorder(),
         onTap: () {
           if (buttonOn) {
-            color1 = Colors.black;
+            color1 = Colors.grey.shade700;
+            color2 = Colors.grey.shade500;
 
             buttonOn = !buttonOn;
           } else {
             color1 = Colors.greenAccent;
-
+            color2 = Colors.cyan;
             buttonOn = !buttonOn;
           }
 
