@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:parker/loginPage.dart';
 import 'package:parker/personal_vehicle_reg_field.dart';
 import 'package:parker/target_vehicle_notify_field.dart';
 import 'package:parker/personal_vehicle_stats_but.dart';
@@ -19,7 +20,6 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -33,7 +33,7 @@ class MyApp extends StatelessWidget {
             displayColor: Colors.blue,
           ),
           scaffoldBackgroundColor: const Color(0xff10002b)),
-      home: const MyHomePage(title: 'App Name'),
+      home: const LoginPage(),
     );
   }
 }
@@ -51,17 +51,6 @@ class _MyHomePageState extends State<MyHomePage> {
   String vecPlateNum = "None";
 
   CollectionReference users = FirebaseFirestore.instance.collection('users');
-
-  /*
-  Future<void> addUser() {
-    // Call the user's CollectionReference to add a new user
-    return users
-        .add({
-          'full_name': 'John Doe', 
-        })
-        .then((value) => print("User Added"))
-        .catchError((error) => print("Failed to add user: $error"));
-  }*/
 
   @override
   Widget build(BuildContext context) {

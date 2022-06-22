@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class PersonalVehicleRegField extends StatefulWidget {
   const PersonalVehicleRegField({Key? key}) : super(key: key);
@@ -9,6 +12,29 @@ class PersonalVehicleRegField extends StatefulWidget {
 }
 
 class _PersonalVehicleRegFieldState extends State<PersonalVehicleRegField> {
+  final personalVehicleNumPlateControl = TextEditingController(text: "None0");
+
+  CollectionReference vechicle = FirebaseFirestore.instance.collection('users');
+
+  Future<void> addUser() {
+    print('daaaaaa  ${personalVehicleNumPlateControl}');
+    // Call the user's CollectionReference to add a new user
+    return vechicle
+        .add({
+          'PlateNum': '${personalVehicleNumPlateControl.text}',
+        })
+        .then((value) => print("User Added"))
+        .catchError((error) => print("Failed to add user: $error"));
+  }
+
+  @override
+  void dispose() {
+    // Clean up the controller when the widget is removed from the
+    // widget tree.
+    personalVehicleNumPlateControl.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -20,8 +46,8 @@ class _PersonalVehicleRegFieldState extends State<PersonalVehicleRegField> {
               SizedBox(
                 width: 150,
                 child: TextFormField(
+                  controller: personalVehicleNumPlateControl,
                   textAlign: TextAlign.center,
-                  initialValue: 'None',
                   style: TextStyle(color: Colors.white),
                   decoration: const InputDecoration(
                     filled: true,
@@ -33,13 +59,17 @@ class _PersonalVehicleRegFieldState extends State<PersonalVehicleRegField> {
                     focusedBorder: OutlineInputBorder(
                       borderSide: BorderSide(color: Colors.cyan),
                     ),
+
                     labelText: 'Personal Vehicle',
                     labelStyle: TextStyle(color: Colors.white),
                   ),
                 ),
               ),
               ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  print('addddd');
+                  addUser();
+                },
                 child:
                     Icon(Icons.app_registration_rounded, color: Colors.white),
                 style: ElevatedButton.styleFrom(
