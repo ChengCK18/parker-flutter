@@ -12,7 +12,7 @@ class PersonalVehicleRegField extends StatefulWidget {
 }
 
 class _PersonalVehicleRegFieldState extends State<PersonalVehicleRegField> {
-  final personalVehicleNumPlateControl = TextEditingController(text: "None0");
+  final personalVehicleNumPlateControl = TextEditingController(text: "None");
 
   CollectionReference vechicle = FirebaseFirestore.instance.collection('users');
 
