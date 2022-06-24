@@ -1,63 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:parker/main.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'sign_up_page.dart';
 
-class SignUpPage extends StatefulWidget {
-  const SignUpPage({Key? key}) : super(key: key);
+class LoginPage extends StatefulWidget {
+  const LoginPage({Key? key}) : super(key: key);
 
   @override
-  State<SignUpPage> createState() => _SignUpPageState();
+  State<LoginPage> createState() => _LoginPageState();
 }
 
-class _SignUpPageState extends State<SignUpPage> {
-  final emailInputControl = TextEditingController();
-  final passwordInputControl = TextEditingController();
-  final passwordConfirmInputControl = TextEditingController();
+class _LoginPageState extends State<LoginPage> {
+  final emailInputControl = TextEditingController(text: "");
+  final passwordInputControl = TextEditingController(text: "");
+  bool dispTac = false;
 
   FirebaseAuth auth = FirebaseAuth.instance;
 
   void showAlert(success, [errorMessage]) {
-    if (success) {
+    if (!success) {
       AlertDialog alert = AlertDialog(
-        title: const Text("Sign Up Successful!"),
-        content: RichText(
-          text: TextSpan(
-            // Note: Styles for TextSpans must be explicitly defined.
-            // Child text spans will inherit styles from parent
-            style: const TextStyle(
-              fontSize: 14.0,
-              color: Colors.black,
-            ),
-            children: <TextSpan>[
-              TextSpan(text: 'Account has been created with '),
-              TextSpan(
-                  text: '${emailInputControl.text}.',
-                  style: const TextStyle(fontWeight: FontWeight.bold)),
-              TextSpan(text: '\nYou can now login with the registered email.'),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-              child: Text("OK"),
-              onPressed: () {
-                Navigator.pop(context);
-                Navigator.pop(context);
-              }),
-        ],
-      );
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return alert;
-        },
-      );
-    } else {
-      AlertDialog alert = AlertDialog(
-        title: Text("Woops, error"),
+        title: const Text("Woops, error"),
         content: Text(errorMessage),
         actions: [
           TextButton(
-              child: Text("OK"),
+              child: const Text("OK"),
               onPressed: () {
                 Navigator.pop(context);
               }),
@@ -72,50 +39,55 @@ class _SignUpPageState extends State<SignUpPage> {
     }
   }
 
-  void verifySignUp() async {
-    if (passwordInputControl.text != passwordConfirmInputControl.text) {
-      showAlert(false, "Password mismatched");
-      return;
-    }
+  Future<bool> loginVerification() async {
     if (emailInputControl.text == "") {
-      showAlert(false, "Missing Email");
-      return;
+      showAlert(false, "Email field cannot be empty");
+      return false;
     }
     if (passwordInputControl.text == "") {
-      showAlert(false, "Missing Password");
-      return;
-    }
-    if (passwordConfirmInputControl.text == "") {
-      showAlert(false, "Missing Reenter Password");
-      return;
+      showAlert(false, "Password field cannot be empty");
+      return false;
     }
 
     try {
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(
-          email: emailInputControl.text, password: passwordInputControl.text);
+      UserCredential userCredential = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(
+              email: emailInputControl.text,
+              password: passwordInputControl.text);
 
-      User? user = FirebaseAuth.instance.currentUser;
+      FirebaseAuth.instance.authStateChanges().listen((User? user) {
+        if (user != null && !user.emailVerified) {
+          AlertDialog alert = AlertDialog(
+            title: const Text("Woops, error"),
+            content: const Text("Email is not verified"),
+            actions: [
+              TextButton(
+                  child: const Text("OK"),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  }),
+            ],
+          );
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return alert;
+            },
+          );
+        }
+      });
 
-      if (user != null && !user.emailVerified) {
-        await user.sendEmailVerification();
-      }
-      showAlert(true);
+      return true;
     } on FirebaseAuthException catch (e) {
       String errorMessage = "";
-
       switch (e.code) {
-        case "ERROR_EMAIL_ALREADY_IN_USE":
-        case "account-exists-with-different-credential":
-        case "email-already-in-use":
-          errorMessage = "Email already used. Go to login page.";
-          break;
         case "ERROR_WRONG_PASSWORD":
         case "wrong-password":
           errorMessage = "Wrong email/password combination.";
           break;
         case "ERROR_USER_NOT_FOUND":
         case "user-not-found":
-          errorMessage = "No user found with this email.";
+          errorMessage = "Wrong email/password combination.";
           break;
         case "ERROR_USER_DISABLED":
         case "user-disabled":
@@ -138,17 +110,19 @@ class _SignUpPageState extends State<SignUpPage> {
           break;
         default:
           errorMessage =
-              "Sign Up failed. Please entry fields are entered. ${e.code}";
+              "Login failed. Please entry fields are entered. ${e.code}";
           break;
       }
       showAlert(false, errorMessage);
-    } catch (e) {
-      print(e);
     }
+    return false;
   }
 
-  void returnToLogin() {
-    Navigator.pop(context);
+  void signUp() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const SignUpPage()),
+    );
   }
 
   @override
@@ -164,7 +138,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 const Padding(
                   padding: EdgeInsets.only(bottom: 20),
                   child: Text(
-                    "Sign Up",
+                    "App Name",
                     style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -193,7 +167,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       ),
 
                       labelText: 'Email',
-                      labelStyle: TextStyle(color: Colors.white),
+                      labelStyle: const TextStyle(color: Colors.white),
                     ),
                   ),
                 ),
@@ -227,48 +201,30 @@ class _SignUpPageState extends State<SignUpPage> {
                     ),
                   ),
                 ),
-                SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.6,
-                  child: TextFormField(
-                    maxLength: 30,
-                    obscureText: true,
-                    controller: passwordConfirmInputControl,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(color: Colors.white),
-                    decoration: InputDecoration(
-                      suffixIcon: IconButton(
-                        onPressed: () {
-                          passwordConfirmInputControl.clear();
-                        },
-                        icon: const Icon(Icons.clear),
-                      ),
-                      filled: true,
-                      alignLabelWithHint: true,
-                      enabledBorder: const OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.cyan),
-                      ),
-                      //[focusedBorder], displayed when [TextField, InputDecorator.isFocused] is true
-                      focusedBorder: const OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.cyan),
-                      ),
-
-                      labelText: 'Reenter Password',
-                      labelStyle: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                ),
                 Padding(
                   padding: const EdgeInsets.only(right: 20),
                   child: ElevatedButton(
                     onPressed: () {
-                      verifySignUp();
+                      loginVerification().then((loggedIn) {
+                        if (loggedIn) {
+                          String userEmail = emailInputControl.text;
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    MyHomePage(title: "Welcome, ${userEmail}")),
+                          );
+                          emailInputControl.clear();
+                          passwordInputControl.clear();
+                        }
+                      });
                     },
                     style: ElevatedButton.styleFrom(
                       primary: Colors.cyan, // background
                       onPrimary: Colors.white, // foreground
                     ),
                     child: const Text(
-                      "Create an account",
+                      "Login",
                       style: TextStyle(fontSize: 14),
                     ),
                   ),
@@ -279,9 +235,9 @@ class _SignUpPageState extends State<SignUpPage> {
                     textStyle: const TextStyle(fontSize: 16),
                   ),
                   onPressed: () {
-                    returnToLogin();
+                    signUp();
                   },
-                  child: const Text('Already have an account? Login'),
+                  child: const Text('Don\'t have an account? Sign up'),
                 ))
               ],
             ),
@@ -295,7 +251,6 @@ class _SignUpPageState extends State<SignUpPage> {
   void dispose() {
     emailInputControl.dispose();
     passwordInputControl.dispose();
-    passwordConfirmInputControl.dispose();
     super.dispose();
   }
 }

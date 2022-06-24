@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:parker/loginPage.dart';
+import 'package:parker/login_page.dart';
 import 'package:parker/personal_vehicle_reg_field.dart';
 import 'package:parker/target_vehicle_notify_field.dart';
 import 'package:parker/personal_vehicle_stats_but.dart';
@@ -60,17 +60,19 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         centerTitle: true,
         backgroundColor: const Color(0xFF240046),
-        title: Text(widget.title),
+        title: Text(widget.title,
+            style:
+                const TextStyle(fontSize: 13.0, fontWeight: FontWeight.bold)),
       ),
       body: Center(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Expanded(
               flex: 1,
               child: Container(
-                  margin: EdgeInsets.all(1),
+                  margin: const EdgeInsets.all(1),
                   child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       mainAxisAlignment: MainAxisAlignment.start,
@@ -81,9 +83,9 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                       ])),
             ),
-            Expanded(flex: 2, child: PersonalVehicleStatsBut()),
-            Expanded(flex: 2, child: PersonalVehicleRegField()),
-            SizedBox(height: 10),
+            const Expanded(flex: 2, child: PersonalVehicleStatsBut()),
+            const Expanded(flex: 2, child: PersonalVehicleRegField()),
+            const SizedBox(height: 10),
             Expanded(
                 flex: 1,
                 child: Container(
@@ -105,8 +107,8 @@ class _MyHomePageState extends State<MyHomePage> {
                             ],
                           ),
                         ]))),
-            Expanded(flex: 2, child: TargetVehicleNotifyBut()),
-            Expanded(flex: 2, child: TargetVehicleNotifyField())
+            const Expanded(flex: 2, child: TargetVehicleNotifyBut()),
+            const Expanded(flex: 2, child: TargetVehicleNotifyField())
           ],
         ),
       ),

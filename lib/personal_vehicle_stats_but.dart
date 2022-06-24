@@ -45,14 +45,8 @@ class _PersonalVehicleStatsButState extends State<PersonalVehicleStatsBut>
             color2 = Colors.cyan;
             buttonOn = !buttonOn;
           }
-
-          print("Container clicked");
         },
         child: Ink(
-          child: IconButton(
-              icon: Icon(Icons.car_crash, size: 40.0),
-              color: Colors.white,
-              onPressed: null),
           height: 48,
           width: 160,
           decoration: BoxDecoration(
@@ -68,27 +62,31 @@ class _PersonalVehicleStatsButState extends State<PersonalVehicleStatsBut>
                   color: color1.withOpacity(0.4),
                   spreadRadius: 1,
                   blurRadius: animation.value,
-                  offset: Offset(-8, 0),
+                  offset: const Offset(-8, 0),
                 ),
                 BoxShadow(
                   color: color2.withOpacity(0.4),
                   spreadRadius: 1,
                   blurRadius: animation.value,
-                  offset: Offset(8, 0),
+                  offset: const Offset(8, 0),
                 ),
                 BoxShadow(
                   color: color1.withOpacity(0.2),
                   spreadRadius: 16,
                   blurRadius: 32,
-                  offset: Offset(-8, 0),
+                  offset: const Offset(-8, 0),
                 ),
                 BoxShadow(
                   color: color2.withOpacity(0.2),
                   spreadRadius: 16,
                   blurRadius: 32,
-                  offset: Offset(8, 0),
+                  offset: const Offset(8, 0),
                 )
               ]),
+          child: const IconButton(
+              icon: Icon(Icons.car_crash, size: 40.0),
+              color: Colors.white,
+              onPressed: null),
         ));
   }
 
