@@ -12,17 +12,93 @@ class PersonalVehicleRegField extends StatefulWidget {
 class _PersonalVehicleRegFieldState extends State<PersonalVehicleRegField> {
   final personalVehicleNumPlateControl = TextEditingController(text: "None");
 
-  CollectionReference vechicle = FirebaseFirestore.instance.collection('users');
+  CollectionReference vehicle =
+      FirebaseFirestore.instance.collection('vehicles');
 
-  Future<void> addUser() {
-    print('daaaaaa  ${personalVehicleNumPlateControl}');
+  Future<void> registerVehicle() async {
+    final snapShot = await FirebaseFirestore.instance
+        .collection('vehicles')
+        .doc("${personalVehicleNumPlateControl.text}") // varuId in your case
+        .get();
+
+    if (!snapShot.exists) {
+      //Create new document only if there is no existing record of the vehicle
+      return vehicle.doc("${personalVehicleNumPlateControl.text}").set({
+        'alertNum': 0,
+        "listener": ['da user here'],
+        "reporter": [],
+        "dateAdded": DateTime.now()
+      }).then((value) {
+        print("Vehicle Added");
+        personalVehicleNumPlateControl.clear();
+      }).catchError((error) => print("Failed to add Vehicle: $error"));
+    } else {
+      //Add user to existing vehicle
+      var collection = FirebaseFirestore.instance.collection('vehicles');
+      collection
+          .doc(
+              "${personalVehicleNumPlateControl.text}") // <-- Doc ID where data should be updated.
+          .update({
+            'listener': FieldValue.arrayUnion(['another user here'])
+          }) // <-- Updated data
+          .then((_) => print('Updated'))
+          .catchError((error) => print('Update failed: $error'));
+    }
+  }
+
+  void queryData() async {
     // Call the user's CollectionReference to add a new user
-    return vechicle
-        .add({
-          'PlateNum': '${personalVehicleNumPlateControl.text}',
-        })
-        .then((value) => print("User Added"))
-        .catchError((error) => print("Failed to add user: $error"));
+    final querySnapshot =
+        await FirebaseFirestore.instance.collection('vehicles').get();
+    print(querySnapshot.docs);
+    for (var doc in querySnapshot.docs) {
+      // Getting data directly
+      Timestamp name = doc.get('dateAdded');
+
+      print(doc.data());
+      // Getting data from map
+      Map<String, dynamic> data = doc.data();
+      int alertNum = data['alertNum'];
+      print(alertNum);
+    }
+  }
+
+  void alertTargetVehicle(String targetNumPlate) async {
+    final snapShot = await FirebaseFirestore.instance
+        .collection('vehicles')
+        .doc("${personalVehicleNumPlateControl.text}") // varuId in your case
+        .get();
+
+    if (snapShot.exists) {
+      var collection = FirebaseFirestore.instance.collection('vehicles');
+      collection
+          .doc(
+              "${personalVehicleNumPlateControl.text}") // <-- Doc ID where data should be updated.
+          .update({
+            'listener': FieldValue.arrayUnion(['another user here'])
+          }) // <-- Updated data
+          .then((_) => print('Updated'))
+          .catchError((error) => print('Update failed: $error'));
+    } else {
+      AlertDialog alert = AlertDialog(
+        title: const Text("Woops, error"),
+        content: Text("Target Vehicle is not registered on this platform."),
+        actions: [
+          TextButton(
+              child: const Text("OK"),
+              onPressed: () {
+                Navigator.pop(context);
+                personalVehicleNumPlateControl.clear();
+              }),
+        ],
+      );
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return alert;
+        },
+      );
+    }
   }
 
   @override
@@ -65,8 +141,33 @@ class _PersonalVehicleRegFieldState extends State<PersonalVehicleRegField> {
               ),
               ElevatedButton(
                 onPressed: () {
-                  print('addddd');
-                  addUser();
+                  registerVehicle();
+                },
+                child:
+                    Icon(Icons.app_registration_rounded, color: Colors.white),
+                style: ElevatedButton.styleFrom(
+                  shape: CircleBorder(),
+                  padding: EdgeInsets.all(12),
+                  primary: Colors.cyan, // <-- Button color
+                  onPrimary: Colors.white, // <-- Splash color
+                ),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  queryData();
+                },
+                child:
+                    Icon(Icons.app_registration_rounded, color: Colors.white),
+                style: ElevatedButton.styleFrom(
+                  shape: CircleBorder(),
+                  padding: EdgeInsets.all(12),
+                  primary: Colors.cyan, // <-- Button color
+                  onPrimary: Colors.white, // <-- Splash color
+                ),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  alertTargetVehicle('dd');
                 },
                 child:
                     Icon(Icons.app_registration_rounded, color: Colors.white),

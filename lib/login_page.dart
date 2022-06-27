@@ -205,19 +205,25 @@ class _LoginPageState extends State<LoginPage> {
                   padding: const EdgeInsets.only(right: 20),
                   child: ElevatedButton(
                     onPressed: () {
-                      loginVerification().then((loggedIn) {
-                        if (loggedIn) {
-                          String userEmail = emailInputControl.text;
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>
-                                    MyHomePage(title: "Welcome, ${userEmail}")),
-                          );
-                          emailInputControl.clear();
-                          passwordInputControl.clear();
-                        }
-                      });
+                      // loginVerification().then((loggedIn) {
+                      //   if (loggedIn) {
+                      //     String userEmail = emailInputControl.text;
+                      //     Navigator.push(
+                      //       context,
+                      //       MaterialPageRoute(
+                      //           builder: (context) =>
+                      //               MyHomePage(title: "Welcome, ${userEmail}")),
+                      //     );
+                      //     emailInputControl.clear();
+                      //     passwordInputControl.clear();
+                      //   }
+                      // });
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                MyHomePage(title: "Welcome lolk")),
+                      );
                     },
                     style: ElevatedButton.styleFrom(
                       primary: Colors.cyan, // background

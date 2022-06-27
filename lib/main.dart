@@ -33,7 +33,7 @@ class MyApp extends StatelessWidget {
             displayColor: Colors.blue,
           ),
           scaffoldBackgroundColor: const Color(0xff10002b)),
-      home: const LoginPage(),
+      home: const MyHomePage(title: "Test"),
     );
   }
 }
