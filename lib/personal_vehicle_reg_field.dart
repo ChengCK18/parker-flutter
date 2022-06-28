@@ -12,7 +12,9 @@ class PersonalVehicleRegField extends StatefulWidget {
 }
 
 class _PersonalVehicleRegFieldState extends State<PersonalVehicleRegField> {
-  final personalVehicleNumPlateControl = TextEditingController(text: "None");
+  var personalVehicleNumPlateControl = TextEditingController(text: "None");
+  String registeredNumPlate = "";
+  int totalAlertReceived = 0;
 
   CollectionReference vehicle =
       FirebaseFirestore.instance.collection('vehicles');
@@ -32,18 +34,23 @@ class _PersonalVehicleRegFieldState extends State<PersonalVehicleRegField> {
           "dateAdded": DateTime.now()
         }).then((value) {
           print("Vehicle Added");
+          setState(() {
+            registeredNumPlate = personalVehicleNumPlateControl.text;
+          });
           personalVehicleNumPlateControl.clear();
         }).catchError((error) => print("Failed to add Vehicle: $error"));
       } else {
         //Add user to existing vehicle
         var collection = FirebaseFirestore.instance.collection('vehicles');
-        collection
-            .doc("${personalVehicleNumPlateControl.text}")
-            .update({
-              'listener': FieldValue.arrayUnion(['${widget.userEmail}'])
-            }) // <-- Updated data
-            .then((_) => print('Updated'))
-            .catchError((error) => print('Update failed: $error'));
+        collection.doc("${personalVehicleNumPlateControl.text}").update({
+          'listener': FieldValue.arrayUnion(['${widget.userEmail}'])
+        }) // <-- Updated data
+            .then((_) {
+          print('Updated');
+          setState(() {
+            registeredNumPlate = personalVehicleNumPlateControl.text;
+          });
+        }).catchError((error) => print('Update failed: $error'));
       }
     });
   }
@@ -128,54 +135,50 @@ class _PersonalVehicleRegFieldState extends State<PersonalVehicleRegField> {
     );
   }
 
-  void alertTargetVehicle(String targetNumPlate) async {
-    final snapShot = await FirebaseFirestore.instance
-        .collection('vehicles')
-        .doc("${personalVehicleNumPlateControl.text}")
-        .get();
+  void getUserRegisteredVehicle() async {
+    bool userRegistered = false;
 
-    if (snapShot.exists) {
-      var collection = FirebaseFirestore.instance.collection('vehicles');
-      collection
-          .doc(
-              "${personalVehicleNumPlateControl.text}") // <-- Doc ID where data should be updated.
-          .update({
-            'listener': FieldValue.arrayUnion(['another user here'])
-          }) // <-- Updated data
-          .then((_) => print('Updated'))
-          .catchError((error) => print('Update failed: $error'));
-    } else {
-      AlertDialog alert = AlertDialog(
-        title: const Text("Woops, error"),
-        content: Text("Target Vehicle is not registered on this platform."),
-        actions: [
-          TextButton(
-              child: const Text("OK"),
-              onPressed: () {
-                Navigator.pop(context);
-                personalVehicleNumPlateControl.clear();
-              }),
-        ],
-      );
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return alert;
+    final querySnapshot =
+        await FirebaseFirestore.instance.collection('vehicles').get();
+    for (var doc in querySnapshot.docs) {
+      // Getting data directly
+      List<dynamic> recUserEmail = doc.get('listener');
+
+      for (var email in recUserEmail) {
+        if (email == widget.userEmail) {
+          userRegistered = true;
+
+          break;
+        }
+      }
+
+      if (userRegistered) {
+        personalVehicleNumPlateControl.text = doc.id;
+        registeredNumPlate = doc.id;
+        break;
+      }
+    }
+  }
+
+  void listenToRegisteredVecAlert() {
+    if (registeredNumPlate != "") {
+      final docRef = FirebaseFirestore.instance
+          .collection("vehicles")
+          .doc(registeredNumPlate);
+      docRef.snapshots().listen(
+        (event) {
+          final data = event.data() as Map<String, dynamic>;
+          totalAlertReceived = data["reporter"].length;
         },
+        onError: (error) => print("Listen failed: $error"),
       );
     }
   }
 
   @override
-  void dispose() {
-    // Clean up the controller when the widget is removed from the
-    // widget tree.
-    personalVehicleNumPlateControl.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    getUserRegisteredVehicle();
+    listenToRegisteredVecAlert();
     return Container(
         margin: const EdgeInsets.only(top: 10),
         child: Row(
@@ -187,7 +190,7 @@ class _PersonalVehicleRegFieldState extends State<PersonalVehicleRegField> {
                 child: TextFormField(
                   controller: personalVehicleNumPlateControl,
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.white),
+                  style: const TextStyle(color: Colors.white),
                   decoration: const InputDecoration(
                     filled: true,
                     alignLabelWithHint: true,
@@ -208,41 +211,36 @@ class _PersonalVehicleRegFieldState extends State<PersonalVehicleRegField> {
                 onPressed: () {
                   registerVehicle();
                 },
-                child:
-                    Icon(Icons.app_registration_rounded, color: Colors.white),
                 style: ElevatedButton.styleFrom(
                   shape: CircleBorder(),
                   padding: EdgeInsets.all(12),
                   primary: Colors.cyan, // <-- Button color
                   onPrimary: Colors.white, // <-- Splash color
                 ),
+                child: const Icon(Icons.app_registration_rounded,
+                    color: Colors.white),
               ),
               ElevatedButton(
                 onPressed: () {
-                  queryData();
+                  listenToRegisteredVecAlert();
                 },
-                child:
-                    Icon(Icons.app_registration_rounded, color: Colors.white),
                 style: ElevatedButton.styleFrom(
                   shape: CircleBorder(),
                   padding: EdgeInsets.all(12),
                   primary: Colors.cyan, // <-- Button color
                   onPrimary: Colors.white, // <-- Splash color
                 ),
+                child: const Icon(Icons.app_registration_rounded,
+                    color: Colors.white),
               ),
-              ElevatedButton(
-                onPressed: () {
-                  alertTargetVehicle('dd');
-                },
-                child:
-                    Icon(Icons.app_registration_rounded, color: Colors.white),
-                style: ElevatedButton.styleFrom(
-                  shape: CircleBorder(),
-                  padding: EdgeInsets.all(12),
-                  primary: Colors.cyan, // <-- Button color
-                  onPrimary: Colors.white, // <-- Splash color
-                ),
-              )
             ]));
+  }
+
+  @override
+  void dispose() {
+    // Clean up the controller when the widget is removed from the
+    // widget tree.
+    personalVehicleNumPlateControl.dispose();
+    super.dispose();
   }
 }

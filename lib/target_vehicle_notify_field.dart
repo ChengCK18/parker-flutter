@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class TargetVehicleNotifyField extends StatefulWidget {
   const TargetVehicleNotifyField({Key? key}) : super(key: key);
@@ -9,6 +10,46 @@ class TargetVehicleNotifyField extends StatefulWidget {
 }
 
 class _TargetVehicleNotifyFieldState extends State<TargetVehicleNotifyField> {
+  final targetVehicleNumPlateControl = TextEditingController(text: "None");
+
+  void alertTargetVehicle(String targetNumPlate) async {
+    final snapShot = await FirebaseFirestore.instance
+        .collection('vehicles')
+        .doc("${targetVehicleNumPlateControl.text}")
+        .get();
+
+    if (snapShot.exists) {
+      var collection = FirebaseFirestore.instance.collection('vehicles');
+      collection
+          .doc(
+              "${targetVehicleNumPlateControl.text}") // <-- Doc ID where data should be updated.
+          .update({
+            'listener': FieldValue.arrayUnion(['another user here'])
+          })
+          .then((_) => print('Updated'))
+          .catchError((error) => print('Update failed: $error'));
+    } else {
+      AlertDialog alert = AlertDialog(
+        title: const Text("Woops, error"),
+        content: Text("Target Vehicle is not registered on this platform."),
+        actions: [
+          TextButton(
+              child: const Text("OK"),
+              onPressed: () {
+                Navigator.pop(context);
+                targetVehicleNumPlateControl.clear();
+              }),
+        ],
+      );
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return alert;
+        },
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -20,8 +61,8 @@ class _TargetVehicleNotifyFieldState extends State<TargetVehicleNotifyField> {
               SizedBox(
                 width: 150,
                 child: TextFormField(
+                  controller: targetVehicleNumPlateControl,
                   textAlign: TextAlign.center,
-                  initialValue: 'None',
                   style: TextStyle(color: Colors.white),
                   decoration: const InputDecoration(
                     filled: true,
