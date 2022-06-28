@@ -218,11 +218,12 @@ class _LoginPageState extends State<LoginPage> {
                       //     passwordInputControl.clear();
                       //   }
                       // });
+                      String userEmail = emailInputControl.text;
                       Navigator.push(
                         context,
                         MaterialPageRoute(
                             builder: (context) =>
-                                MyHomePage(title: "Welcome lolk")),
+                                MyHomePage(userEmail: "${userEmail}")),
                       );
                     },
                     style: ElevatedButton.styleFrom(

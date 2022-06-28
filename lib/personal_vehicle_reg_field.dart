@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class PersonalVehicleRegField extends StatefulWidget {
-  const PersonalVehicleRegField({Key? key}) : super(key: key);
+  const PersonalVehicleRegField({Key? key, required this.userEmail})
+      : super(key: key);
 
+  final String userEmail;
   @override
   State<PersonalVehicleRegField> createState() =>
       _PersonalVehicleRegFieldState();
@@ -21,52 +23,115 @@ class _PersonalVehicleRegFieldState extends State<PersonalVehicleRegField> {
         .doc("${personalVehicleNumPlateControl.text}") // varuId in your case
         .get();
 
-    if (!snapShot.exists) {
-      //Create new document only if there is no existing record of the vehicle
-      return vehicle.doc("${personalVehicleNumPlateControl.text}").set({
-        'alertNum': 0,
-        "listener": ['da user here'],
-        "reporter": [],
-        "dateAdded": DateTime.now()
-      }).then((value) {
-        print("Vehicle Added");
-        personalVehicleNumPlateControl.clear();
-      }).catchError((error) => print("Failed to add Vehicle: $error"));
-    } else {
-      //Add user to existing vehicle
+    deregisterFromVehicles().then((value) {
+      if (!snapShot.exists) {
+        //Create new document only if there is no existing record of the vehicle
+        return vehicle.doc("${personalVehicleNumPlateControl.text}").set({
+          "listener": [widget.userEmail],
+          "reporter": [],
+          "dateAdded": DateTime.now()
+        }).then((value) {
+          print("Vehicle Added");
+          personalVehicleNumPlateControl.clear();
+        }).catchError((error) => print("Failed to add Vehicle: $error"));
+      } else {
+        //Add user to existing vehicle
+        var collection = FirebaseFirestore.instance.collection('vehicles');
+        collection
+            .doc("${personalVehicleNumPlateControl.text}")
+            .update({
+              'listener': FieldValue.arrayUnion(['${widget.userEmail}'])
+            }) // <-- Updated data
+            .then((_) => print('Updated'))
+            .catchError((error) => print('Update failed: $error'));
+      }
+    });
+  }
+
+  Future<String> deregisterFromVehicles() async {
+    //To search for existing vehicle that was registered by user
+    //and remove user from it
+    bool userRegistered = false;
+    String userRegisteredVehicle = "";
+
+    final querySnapshot =
+        await FirebaseFirestore.instance.collection('vehicles').get();
+    for (var doc in querySnapshot.docs) {
+      // Getting data directly
+      List<dynamic> recUserEmail = doc.get('listener');
+
+      for (var email in recUserEmail) {
+        if (email == widget.userEmail) {
+          userRegistered = true;
+          userRegisteredVehicle = doc.id;
+          break;
+        }
+      }
+
+      if (userRegistered) {
+        break;
+      }
+    }
+
+    if (userRegistered) {
+      // remove user from other vehicle list
       var collection = FirebaseFirestore.instance.collection('vehicles');
       collection
-          .doc(
-              "${personalVehicleNumPlateControl.text}") // <-- Doc ID where data should be updated.
+          .doc("${userRegisteredVehicle}")
           .update({
-            'listener': FieldValue.arrayUnion(['another user here'])
+            'listener': FieldValue.arrayRemove(['${widget.userEmail}'])
           }) // <-- Updated data
           .then((_) => print('Updated'))
           .catchError((error) => print('Update failed: $error'));
+
+      // remove vehicle if no listener remaining after removal of user
+      final docRef = await FirebaseFirestore.instance
+          .collection('vehicles')
+          .doc("${userRegisteredVehicle}");
+
+      docRef.get().then(
+        (DocumentSnapshot doc) {
+          final data = doc.data() as Map<String, dynamic>;
+          if (data["listener"].isEmpty) {
+            docRef.delete().then(
+                  (doc) => print("Document deleted"),
+                  onError: (e) => print("Error updating document $e"),
+                );
+            ;
+          }
+          // ...
+        },
+        onError: (e) => print("Error getting document: $e"),
+      );
     }
+
+    return "Complete";
   }
 
   void queryData() async {
-    // Call the user's CollectionReference to add a new user
-    final querySnapshot =
-        await FirebaseFirestore.instance.collection('vehicles').get();
-    print(querySnapshot.docs);
-    for (var doc in querySnapshot.docs) {
-      // Getting data directly
-      Timestamp name = doc.get('dateAdded');
+    final docRef =
+        await FirebaseFirestore.instance.collection('vehicles').doc("JJP1334");
 
-      print(doc.data());
-      // Getting data from map
-      Map<String, dynamic> data = doc.data();
-      int alertNum = data['alertNum'];
-      print(alertNum);
-    }
+    docRef.get().then(
+      (DocumentSnapshot doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        if (data["listener"].isEmpty) {
+          docRef.delete().then(
+                (doc) => print("Document deleted"),
+                onError: (e) => print("Error updating document $e"),
+              );
+          ;
+        }
+        // ...
+      },
+      onError: (e) => print("Error getting document: $e"),
+    );
   }
 
   void alertTargetVehicle(String targetNumPlate) async {
     final snapShot = await FirebaseFirestore.instance
         .collection('vehicles')
-        .doc("${personalVehicleNumPlateControl.text}") // varuId in your case
+        .doc("${personalVehicleNumPlateControl.text}")
         .get();
 
     if (snapShot.exists) {

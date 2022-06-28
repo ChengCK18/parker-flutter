@@ -33,15 +33,15 @@ class MyApp extends StatelessWidget {
             displayColor: Colors.blue,
           ),
           scaffoldBackgroundColor: const Color(0xff10002b)),
-      home: const MyHomePage(title: "Test"),
+      home: const MyHomePage(userEmail: "dummy@gmail.com"),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
+  const MyHomePage({Key? key, required this.userEmail}) : super(key: key);
 
-  final String title;
+  final String userEmail;
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -60,7 +60,7 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         centerTitle: true,
         backgroundColor: const Color(0xFF240046),
-        title: Text(widget.title,
+        title: Text(widget.userEmail,
             style:
                 const TextStyle(fontSize: 13.0, fontWeight: FontWeight.bold)),
       ),
@@ -84,7 +84,9 @@ class _MyHomePageState extends State<MyHomePage> {
                       ])),
             ),
             const Expanded(flex: 2, child: PersonalVehicleStatsBut()),
-            const Expanded(flex: 2, child: PersonalVehicleRegField()),
+            Expanded(
+                flex: 2,
+                child: PersonalVehicleRegField(userEmail: widget.userEmail)),
             const SizedBox(height: 10),
             Expanded(
                 flex: 1,
