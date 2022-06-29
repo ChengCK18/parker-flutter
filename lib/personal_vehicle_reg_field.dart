@@ -19,12 +19,13 @@ class _PersonalVehicleRegFieldState extends State<PersonalVehicleRegField> {
   CollectionReference vehicle =
       FirebaseFirestore.instance.collection('vehicles');
 
-  void registerVehicle() {
+  void registerVehicle() async {
     if (personalVehicleNumPlateControl.text == registeredNumPlate) {
-      return;
+      //return;
     }
 
     deregisterFromVehicles().then((value) {
+      print("Start of after deregisterFromVehicles");
       final snapShot = FirebaseFirestore.instance
           .collection('vehicles')
           .doc("${personalVehicleNumPlateControl.text}") // varuId in your case
@@ -32,16 +33,14 @@ class _PersonalVehicleRegFieldState extends State<PersonalVehicleRegField> {
           .then((snapShot) {
         if (!snapShot.exists) {
           //Create new document only if there is no existing record of the vehicle
-          return vehicle.doc("${personalVehicleNumPlateControl.text}").set({
+          vehicle.doc("${personalVehicleNumPlateControl.text}").set({
             "listener": [widget.userEmail],
             "reporter": [],
             "dateAdded": DateTime.now()
           }).then((value) {
-            print("Vehicle Added");
-            setState(() {
-              registeredNumPlate = personalVehicleNumPlateControl.text;
-            });
-            personalVehicleNumPlateControl.clear();
+            print("Added user to newly added vehicle");
+
+            registeredNumPlate = personalVehicleNumPlateControl.text;
           }).catchError((error) => print("Failed to add Vehicle: $error"));
         } else {
           //Add user to existing vehicle
@@ -50,20 +49,22 @@ class _PersonalVehicleRegFieldState extends State<PersonalVehicleRegField> {
             'listener': FieldValue.arrayUnion(['${widget.userEmail}'])
           }) // <-- Updated data
               .then((_) {
-            print('Updated');
+            print('Added user to existing vehicle');
             setState(() {
               registeredNumPlate = personalVehicleNumPlateControl.text;
             });
-          }).catchError((error) => print('Update failed: $error'));
+          }).catchError((error) =>
+                  print('Adding user to existing vehicle failed: $error'));
         }
         listenToRegisteredVecAlert();
       });
     });
   }
 
-  Future<String> deregisterFromVehicles() async {
+  Future<void> deregisterFromVehicles() async {
     //To search for existing vehicle that was registered by user
     //and remove user from it
+    print("Before deregisterFromVehicles");
     bool userRegistered = false;
     String userRegisteredVehicle = "";
 
@@ -94,7 +95,7 @@ class _PersonalVehicleRegFieldState extends State<PersonalVehicleRegField> {
           .update({
             'listener': FieldValue.arrayRemove(['${widget.userEmail}'])
           }) // <-- Updated data
-          .then((_) => print('Updated'))
+          .then((_) => print('Removed user from other vehicle listener list'))
           .catchError((error) => print('Update failed: $error'));
 
       // remove vehicle if no listener remaining after removal of user
@@ -102,26 +103,26 @@ class _PersonalVehicleRegFieldState extends State<PersonalVehicleRegField> {
           .collection('vehicles')
           .doc("${userRegisteredVehicle}");
 
-      docRef.get().then(
-        (DocumentSnapshot doc) {
-          final data = doc.data() as Map<String, dynamic>;
-          print(
-              "NUMPLATE => ${userRegisteredVehicle} REMOVAL => ${data["listener"]}");
-          if (data["listener"].isEmpty) {
-            docRef.delete().then(
-                  (doc) => print("Document deleted"),
-                  onError: (e) => print("Error updating document $e"),
-                );
-            ;
-          }
-          // ...
-        },
-        onError: (e) => print("Error getting document: $e"),
-      );
-    }
+      DocumentSnapshot doc = await docRef.get();
 
-    return "Complete";
+      final data = doc.data() as Map<String, dynamic>;
+      print(
+          "NUMPLATE => ${userRegisteredVehicle} Listener => ${data["listener"]}");
+
+      if (data["listener"].isEmpty) {
+        await docRef.delete().then(
+              (doc) => print("Document deleted"),
+              onError: (e) => print("Error updating document $e"),
+            );
+        ;
+      }
+      // ...
+
+    }
+    print("After deregisterFromVehicles");
   }
+
+  void removeVecWithoutListener() {}
 
   void queryData() async {
     final docRef =
@@ -176,9 +177,10 @@ class _PersonalVehicleRegFieldState extends State<PersonalVehicleRegField> {
       docRef.snapshots().listen(
         (event) {
           final data = event.data() as Map<String, dynamic>;
-
-          totalAlertReceived = data["reporter"].length;
-          print("totalAlertReceived ${totalAlertReceived}");
+          if (data != null) {
+            totalAlertReceived = data["reporter"].length;
+            print("totalAlertReceived ${totalAlertReceived}");
+          }
         },
         onError: (error) => print("Listen failed: $error"),
       );
