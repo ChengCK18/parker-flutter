@@ -52,6 +52,8 @@ class _PersonalVehicleRegFieldState extends State<PersonalVehicleRegField> {
           });
         }).catchError((error) => print('Update failed: $error'));
       }
+
+      listenToRegisteredVecAlert();
     });
   }
 
@@ -82,8 +84,8 @@ class _PersonalVehicleRegFieldState extends State<PersonalVehicleRegField> {
 
     if (userRegistered) {
       // remove user from other vehicle list
-      var collection = FirebaseFirestore.instance.collection('vehicles');
-      collection
+      var collection = await FirebaseFirestore.instance
+          .collection('vehicles')
           .doc("${userRegisteredVehicle}")
           .update({
             'listener': FieldValue.arrayRemove(['${widget.userEmail}'])
@@ -99,6 +101,8 @@ class _PersonalVehicleRegFieldState extends State<PersonalVehicleRegField> {
       docRef.get().then(
         (DocumentSnapshot doc) {
           final data = doc.data() as Map<String, dynamic>;
+          print(
+              "NUMPLATE => ${userRegisteredVehicle} REMOVAL => ${data["listener"]}");
           if (data["listener"].isEmpty) {
             docRef.delete().then(
                   (doc) => print("Document deleted"),
@@ -160,15 +164,17 @@ class _PersonalVehicleRegFieldState extends State<PersonalVehicleRegField> {
     }
   }
 
-  void listenToRegisteredVecAlert() {
+  void listenToRegisteredVecAlert() async {
     if (registeredNumPlate != "") {
-      final docRef = FirebaseFirestore.instance
+      final docRef = await FirebaseFirestore.instance
           .collection("vehicles")
           .doc(registeredNumPlate);
       docRef.snapshots().listen(
         (event) {
           final data = event.data() as Map<String, dynamic>;
+
           totalAlertReceived = data["reporter"].length;
+          print("totalAlertReceived ${totalAlertReceived}");
         },
         onError: (error) => print("Listen failed: $error"),
       );
@@ -178,7 +184,7 @@ class _PersonalVehicleRegFieldState extends State<PersonalVehicleRegField> {
   @override
   Widget build(BuildContext context) {
     getUserRegisteredVehicle();
-    listenToRegisteredVecAlert();
+
     return Container(
         margin: const EdgeInsets.only(top: 10),
         child: Row(
