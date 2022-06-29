@@ -19,41 +19,45 @@ class _PersonalVehicleRegFieldState extends State<PersonalVehicleRegField> {
   CollectionReference vehicle =
       FirebaseFirestore.instance.collection('vehicles');
 
-  Future<void> registerVehicle() async {
-    final snapShot = await FirebaseFirestore.instance
-        .collection('vehicles')
-        .doc("${personalVehicleNumPlateControl.text}") // varuId in your case
-        .get();
+  void registerVehicle() {
+    if (personalVehicleNumPlateControl.text == registeredNumPlate) {
+      return;
+    }
 
     deregisterFromVehicles().then((value) {
-      if (!snapShot.exists) {
-        //Create new document only if there is no existing record of the vehicle
-        return vehicle.doc("${personalVehicleNumPlateControl.text}").set({
-          "listener": [widget.userEmail],
-          "reporter": [],
-          "dateAdded": DateTime.now()
-        }).then((value) {
-          print("Vehicle Added");
-          setState(() {
-            registeredNumPlate = personalVehicleNumPlateControl.text;
-          });
-          personalVehicleNumPlateControl.clear();
-        }).catchError((error) => print("Failed to add Vehicle: $error"));
-      } else {
-        //Add user to existing vehicle
-        var collection = FirebaseFirestore.instance.collection('vehicles');
-        collection.doc("${personalVehicleNumPlateControl.text}").update({
-          'listener': FieldValue.arrayUnion(['${widget.userEmail}'])
-        }) // <-- Updated data
-            .then((_) {
-          print('Updated');
-          setState(() {
-            registeredNumPlate = personalVehicleNumPlateControl.text;
-          });
-        }).catchError((error) => print('Update failed: $error'));
-      }
-
-      listenToRegisteredVecAlert();
+      final snapShot = FirebaseFirestore.instance
+          .collection('vehicles')
+          .doc("${personalVehicleNumPlateControl.text}") // varuId in your case
+          .get()
+          .then((snapShot) {
+        if (!snapShot.exists) {
+          //Create new document only if there is no existing record of the vehicle
+          return vehicle.doc("${personalVehicleNumPlateControl.text}").set({
+            "listener": [widget.userEmail],
+            "reporter": [],
+            "dateAdded": DateTime.now()
+          }).then((value) {
+            print("Vehicle Added");
+            setState(() {
+              registeredNumPlate = personalVehicleNumPlateControl.text;
+            });
+            personalVehicleNumPlateControl.clear();
+          }).catchError((error) => print("Failed to add Vehicle: $error"));
+        } else {
+          //Add user to existing vehicle
+          var collection = FirebaseFirestore.instance.collection('vehicles');
+          collection.doc("${personalVehicleNumPlateControl.text}").update({
+            'listener': FieldValue.arrayUnion(['${widget.userEmail}'])
+          }) // <-- Updated data
+              .then((_) {
+            print('Updated');
+            setState(() {
+              registeredNumPlate = personalVehicleNumPlateControl.text;
+            });
+          }).catchError((error) => print('Update failed: $error'));
+        }
+        listenToRegisteredVecAlert();
+      });
     });
   }
 
