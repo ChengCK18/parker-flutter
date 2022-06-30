@@ -47,16 +47,15 @@ class _PersonalVehicleRegFieldState extends State<PersonalVehicleRegField> {
         } else {
           //Add user to existing vehicle
           var collection = FirebaseFirestore.instance.collection('vehicles');
-          collection.doc("${personalVehicleNumPlateControl.text}").update({
-            'listener': FieldValue.arrayUnion(['${widget.userEmail}'])
-          }) // <-- Updated data
-              .then((_) {
+          collection.doc(personalVehicleNumPlateControl.text).update({
+            'listener': FieldValue.arrayUnion([widget.userEmail])
+          }).then((_) {
             print('Added user to existing vehicle');
             setState(() {
               registeredNumPlate = personalVehicleNumPlateControl.text;
             });
           }).catchError((error) =>
-                  print('Adding user to existing vehicle failed: $error'));
+              print('Adding user to existing vehicle failed: $error'));
         }
       });
     });
@@ -89,7 +88,7 @@ class _PersonalVehicleRegFieldState extends State<PersonalVehicleRegField> {
 
     if (userRegistered) {
       // remove user from other vehicle list
-      var collection = await FirebaseFirestore.instance
+      await FirebaseFirestore.instance
           .collection('vehicles')
           .doc("${userRegisteredVehicle}")
           .update({
@@ -101,7 +100,7 @@ class _PersonalVehicleRegFieldState extends State<PersonalVehicleRegField> {
       // remove vehicle if no listener remaining after removal of user
       final docRef = await FirebaseFirestore.instance
           .collection('vehicles')
-          .doc("${userRegisteredVehicle}");
+          .doc(userRegisteredVehicle);
 
       DocumentSnapshot doc = await docRef.get();
       final data = doc.data() as Map<String, dynamic>;
@@ -142,10 +141,7 @@ class _PersonalVehicleRegFieldState extends State<PersonalVehicleRegField> {
     print("getUserRegisteredVehicle");
     bool userRegistered = false;
 
-    final querySnapshot = await FirebaseFirestore.instance
-        .collection('vehicles')
-        .get()
-        .then((query) {
+    await FirebaseFirestore.instance.collection('vehicles').get().then((query) {
       for (var doc in query.docs) {
         // Getting data directly
         List<dynamic> recUserEmail = doc.get('listener');

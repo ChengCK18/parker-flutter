@@ -48,7 +48,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  String vecPlateNum = "None";
+  final targetVehicleNumPlateControl = TextEditingController(text: "None");
 
   CollectionReference users = FirebaseFirestore.instance.collection('users');
 
@@ -109,8 +109,16 @@ class _MyHomePageState extends State<MyHomePage> {
                             ],
                           ),
                         ]))),
-            const Expanded(flex: 2, child: TargetVehicleNotifyBut()),
-            const Expanded(flex: 2, child: TargetVehicleNotifyField())
+            Expanded(
+                flex: 2,
+                child: TargetVehicleNotifyBut(
+                    userEmail: widget.userEmail,
+                    targetVehicleNumPlateControl:
+                        targetVehicleNumPlateControl)),
+            Expanded(
+                flex: 2,
+                child: TargetVehicleNotifyField(
+                    targetVehicleNumPlateControl: targetVehicleNumPlateControl))
           ],
         ),
       ),
