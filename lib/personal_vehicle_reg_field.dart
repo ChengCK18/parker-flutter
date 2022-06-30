@@ -21,7 +21,7 @@ class _PersonalVehicleRegFieldState extends State<PersonalVehicleRegField> {
 
   void registerVehicle() async {
     if (personalVehicleNumPlateControl.text == registeredNumPlate) {
-      //return;
+      return;
     }
 
     deregisterFromVehicles().then((value) {
@@ -40,7 +40,9 @@ class _PersonalVehicleRegFieldState extends State<PersonalVehicleRegField> {
           }).then((value) {
             print("Added user to newly added vehicle");
 
-            registeredNumPlate = personalVehicleNumPlateControl.text;
+            setState(() {
+              registeredNumPlate = personalVehicleNumPlateControl.text;
+            });
           }).catchError((error) => print("Failed to add Vehicle: $error"));
         } else {
           //Add user to existing vehicle
@@ -56,14 +58,12 @@ class _PersonalVehicleRegFieldState extends State<PersonalVehicleRegField> {
           }).catchError((error) =>
                   print('Adding user to existing vehicle failed: $error'));
         }
-        listenToRegisteredVecAlert();
       });
     });
   }
 
   Future<void> deregisterFromVehicles() async {
-    //To search for existing vehicle that was registered by user
-    //and remove user from it
+    //To search for existing vehicle that was registered by user and remove user from it
     print("Before deregisterFromVehicles");
     bool userRegistered = false;
     String userRegisteredVehicle = "";
@@ -104,7 +104,6 @@ class _PersonalVehicleRegFieldState extends State<PersonalVehicleRegField> {
           .doc("${userRegisteredVehicle}");
 
       DocumentSnapshot doc = await docRef.get();
-
       final data = doc.data() as Map<String, dynamic>;
       print(
           "NUMPLATE => ${userRegisteredVehicle} Listener => ${data["listener"]}");
@@ -116,60 +115,61 @@ class _PersonalVehicleRegFieldState extends State<PersonalVehicleRegField> {
             );
         ;
       }
-      // ...
-
     }
     print("After deregisterFromVehicles");
   }
 
-  void removeVecWithoutListener() {}
-
   void queryData() async {
-    final docRef =
-        await FirebaseFirestore.instance.collection('vehicles').doc("JJP1334");
+    // final docRef =
+    //     await FirebaseFirestore.instance.collection('vehicles').doc("JJP1334");
 
-    docRef.get().then(
-      (DocumentSnapshot doc) {
-        final data = doc.data() as Map<String, dynamic>;
-        if (data["listener"].isEmpty) {
-          docRef.delete().then(
-                (doc) => print("Document deleted"),
-                onError: (e) => print("Error updating document $e"),
-              );
-          ;
-        }
-        // ...
-      },
-      onError: (e) => print("Error getting document: $e"),
-    );
+    // docRef.get().then(
+    //   (DocumentSnapshot doc) {
+    //     final data = doc.data() as Map<String, dynamic>;
+    //     if (data["listener"].isEmpty) {
+    //       docRef.delete().then(
+    //             (doc) => print("Document deleted"),
+    //             onError: (e) => print("Error updating document $e"),
+    //           );
+    //       ;
+    //     }
+    //   },
+    //   onError: (e) => print("Error getting document: $e"),
+    // );
   }
 
-  void getUserRegisteredVehicle() async {
+  Future<void> getUserRegisteredVehicle() async {
+    print("getUserRegisteredVehicle");
     bool userRegistered = false;
 
-    final querySnapshot =
-        await FirebaseFirestore.instance.collection('vehicles').get();
-    for (var doc in querySnapshot.docs) {
-      // Getting data directly
-      List<dynamic> recUserEmail = doc.get('listener');
+    final querySnapshot = await FirebaseFirestore.instance
+        .collection('vehicles')
+        .get()
+        .then((query) {
+      for (var doc in query.docs) {
+        // Getting data directly
+        List<dynamic> recUserEmail = doc.get('listener');
 
-      for (var email in recUserEmail) {
-        if (email == widget.userEmail) {
-          userRegistered = true;
+        for (var email in recUserEmail) {
+          if (email == widget.userEmail) {
+            userRegistered = true;
 
+            break;
+          }
+        }
+
+        if (userRegistered) {
+          personalVehicleNumPlateControl.text = doc.id;
+          registeredNumPlate = doc.id;
           break;
         }
       }
-
-      if (userRegistered) {
-        personalVehicleNumPlateControl.text = doc.id;
-        registeredNumPlate = doc.id;
-        break;
-      }
-    }
+      print("getUserRegisteredVehicle ENDS");
+    });
   }
 
   void listenToRegisteredVecAlert() async {
+    print("listenToRegisteredVecAlert");
     if (registeredNumPlate != "") {
       final docRef = await FirebaseFirestore.instance
           .collection("vehicles")
@@ -185,11 +185,15 @@ class _PersonalVehicleRegFieldState extends State<PersonalVehicleRegField> {
         onError: (error) => print("Listen failed: $error"),
       );
     }
+    print("listenToRegisteredVecAlert ENDS");
   }
 
   @override
   Widget build(BuildContext context) {
-    getUserRegisteredVehicle();
+    getUserRegisteredVehicle().then((value) {
+      listenToRegisteredVecAlert();
+    });
+    ;
 
     return Container(
         margin: const EdgeInsets.only(top: 10),
@@ -224,8 +228,8 @@ class _PersonalVehicleRegFieldState extends State<PersonalVehicleRegField> {
                   registerVehicle();
                 },
                 style: ElevatedButton.styleFrom(
-                  shape: CircleBorder(),
-                  padding: EdgeInsets.all(12),
+                  shape: const CircleBorder(),
+                  padding: const EdgeInsets.all(12),
                   primary: Colors.cyan, // <-- Button color
                   onPrimary: Colors.white, // <-- Splash color
                 ),
@@ -234,11 +238,11 @@ class _PersonalVehicleRegFieldState extends State<PersonalVehicleRegField> {
               ),
               ElevatedButton(
                 onPressed: () {
-                  listenToRegisteredVecAlert();
+                  queryData();
                 },
                 style: ElevatedButton.styleFrom(
-                  shape: CircleBorder(),
-                  padding: EdgeInsets.all(12),
+                  shape: const CircleBorder(),
+                  padding: const EdgeInsets.all(12),
                   primary: Colors.cyan, // <-- Button color
                   onPrimary: Colors.white, // <-- Splash color
                 ),
