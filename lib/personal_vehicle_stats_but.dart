@@ -1,8 +1,16 @@
 import 'package:flutter/material.dart';
 
 class PersonalVehicleStatsBut extends StatefulWidget {
-  const PersonalVehicleStatsBut({Key? key}) : super(key: key);
+  const PersonalVehicleStatsBut(
+      {Key? key,
+      required this.personalVecAlertReceived,
+      required this.personalOnline,
+      required this.updatePersonalOnline})
+      : super(key: key);
 
+  final int personalVecAlertReceived;
+  final bool personalOnline;
+  final Function updatePersonalOnline;
   @override
   State<PersonalVehicleStatsBut> createState() =>
       _PersonalVehicleStatsButState();
@@ -14,7 +22,7 @@ class _PersonalVehicleStatsButState extends State<PersonalVehicleStatsBut>
   late AnimationController controller;
   Color color1 = Colors.greenAccent;
   Color color2 = Colors.cyan;
-  bool buttonOn = true;
+
   @override
   void initState() {
     super.initState();
@@ -31,20 +39,32 @@ class _PersonalVehicleStatsButState extends State<PersonalVehicleStatsBut>
 
   @override
   Widget build(BuildContext context) {
+    if (widget.personalOnline) {
+      color1 = Colors.greenAccent;
+      color2 = Colors.cyan;
+    } else {
+      color1 = Colors.grey.shade700;
+      color2 = Colors.grey.shade500;
+    }
+
+    if (widget.personalOnline && widget.personalVecAlertReceived > 0) {
+      color1 = Colors.redAccent;
+      color2 = Colors.red;
+    }
+
     return InkWell(
         splashColor: Colors.white,
         customBorder: const CircleBorder(),
         onTap: () {
-          if (buttonOn) {
-            color1 = Colors.grey.shade700;
-            color2 = Colors.grey.shade500;
-
-            buttonOn = !buttonOn;
-          } else {
+          widget.updatePersonalOnline();
+          if (widget.personalOnline) {
             color1 = Colors.greenAccent;
             color2 = Colors.cyan;
-            buttonOn = !buttonOn;
+          } else {
+            color1 = Colors.grey.shade700;
+            color2 = Colors.grey.shade500;
           }
+          //
         },
         child: Ink(
           height: 48,

@@ -48,13 +48,46 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final targetVehicleNumPlateControl = TextEditingController(text: "None");
+  TextEditingController targetVehicleNumPlateControl = TextEditingController();
+
+  bool personalOnline = true;
+  String personalVecNumPlate = "";
+  int personalVecAlertReceived = 0;
 
   CollectionReference users = FirebaseFirestore.instance.collection('users');
+
+  void updatePersonalOnline() {
+    setState(() {
+      personalOnline = !personalOnline;
+    });
+  }
+
+  void updatePersonalVecNumPlate(value) {
+    if (value != personalVecNumPlate) {
+      //Only setState when value changes
+      setState(() {
+        personalVecNumPlate = value;
+      });
+    }
+  }
+
+  void updatePersonalVecAlertReceived(value) {
+    if (value != personalVecAlertReceived) {
+      //Only setState when value changes
+      setState(() {
+        personalVecAlertReceived = value;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     //final screenSize = MediaQuery.of(context).size;
+    String userStatus = personalOnline ? "Online" : "Offline";
+    String userStatusAlertNum = "";
+    if (personalOnline) {
+      userStatusAlertNum = "(${personalVecAlertReceived.toString()})";
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -68,6 +101,7 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
+            Text("${personalVecNumPlate}"),
             const SizedBox(height: 10),
             Expanded(
               flex: 1,
@@ -79,14 +113,26 @@ class _MyHomePageState extends State<MyHomePage> {
                       children: <Widget>[
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          children: const <Widget>[Text('Personal (Online)')],
+                          children: <Widget>[
+                            Text(
+                                'Personal ➡ ${userStatus} ${userStatusAlertNum}')
+                          ],
                         ),
                       ])),
             ),
-            const Expanded(flex: 2, child: PersonalVehicleStatsBut()),
             Expanded(
                 flex: 2,
-                child: PersonalVehicleRegField(userEmail: widget.userEmail)),
+                child: PersonalVehicleStatsBut(
+                    personalOnline: personalOnline,
+                    updatePersonalOnline: updatePersonalOnline,
+                    personalVecAlertReceived: personalVecAlertReceived)),
+            Expanded(
+                flex: 2,
+                child: PersonalVehicleRegField(
+                    userEmail: widget.userEmail,
+                    updatePersonalVecNumPlate: updatePersonalVecNumPlate,
+                    updatePersonalVecAlertReceived:
+                        updatePersonalVecAlertReceived)),
             const SizedBox(height: 10),
             Expanded(
                 flex: 1,
@@ -113,6 +159,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 flex: 2,
                 child: TargetVehicleNotifyBut(
                     userEmail: widget.userEmail,
+                    personalVecNumPlate: personalVecNumPlate,
                     targetVehicleNumPlateControl:
                         targetVehicleNumPlateControl)),
             Expanded(

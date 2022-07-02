@@ -2,10 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class PersonalVehicleRegField extends StatefulWidget {
-  const PersonalVehicleRegField({Key? key, required this.userEmail})
+  const PersonalVehicleRegField(
+      {Key? key,
+      required this.userEmail,
+      required this.updatePersonalVecAlertReceived,
+      required this.updatePersonalVecNumPlate})
       : super(key: key);
 
   final String userEmail;
+  final Function updatePersonalVecAlertReceived;
+  final Function updatePersonalVecNumPlate;
   @override
   State<PersonalVehicleRegField> createState() =>
       _PersonalVehicleRegFieldState();
@@ -14,7 +20,6 @@ class PersonalVehicleRegField extends StatefulWidget {
 class _PersonalVehicleRegFieldState extends State<PersonalVehicleRegField> {
   var personalVehicleNumPlateControl = TextEditingController(text: "None");
   String registeredNumPlate = "";
-  int totalAlertReceived = 0;
 
   CollectionReference vehicle =
       FirebaseFirestore.instance.collection('vehicles');
@@ -118,23 +123,44 @@ class _PersonalVehicleRegFieldState extends State<PersonalVehicleRegField> {
     print("After deregisterFromVehicles");
   }
 
-  void queryData() async {
-    // final docRef =
-    //     await FirebaseFirestore.instance.collection('vehicles').doc("JJP1334");
+  void clearPersonalVecAlerts() {
+    // set up the buttons
+    Widget noButton = TextButton(
+      child: Text("No"),
+      onPressed: () {
+        Navigator.pop(context);
+      },
+    );
+    Widget yesButton = TextButton(
+      child: Text("Yes"),
+      onPressed: () {
+        var collection = FirebaseFirestore.instance.collection('vehicles');
+        collection.doc(registeredNumPlate).update({'reporter': []}).then((_) {
+          print('Cleared alerts received');
+          Navigator.pop(context);
+        }).catchError((error) => print(
+            'Cleared alerts received from existing vehicle failed: $error'));
+      },
+    );
 
-    // docRef.get().then(
-    //   (DocumentSnapshot doc) {
-    //     final data = doc.data() as Map<String, dynamic>;
-    //     if (data["listener"].isEmpty) {
-    //       docRef.delete().then(
-    //             (doc) => print("Document deleted"),
-    //             onError: (e) => print("Error updating document $e"),
-    //           );
-    //       ;
-    //     }
-    //   },
-    //   onError: (e) => print("Error getting document: $e"),
-    // );
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: Text("Clear Alerts?"),
+      content: Text(
+          "Are you sure you would like to clear the alerts received on this registered vehicle?"),
+      actions: [
+        noButton,
+        yesButton,
+      ],
+    );
+
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
   }
 
   Future<void> getUserRegisteredVehicle() async {
@@ -174,8 +200,7 @@ class _PersonalVehicleRegFieldState extends State<PersonalVehicleRegField> {
         (event) {
           final data = event.data() as Map<String, dynamic>;
           if (data != null) {
-            totalAlertReceived = data["reporter"].length;
-            print("totalAlertReceived ${totalAlertReceived}");
+            widget.updatePersonalVecAlertReceived(data["reporter"].length);
           }
         },
         onError: (error) => print("Listen failed: $error"),
@@ -188,6 +213,7 @@ class _PersonalVehicleRegFieldState extends State<PersonalVehicleRegField> {
   Widget build(BuildContext context) {
     getUserRegisteredVehicle().then((value) {
       listenToRegisteredVecAlert();
+      widget.updatePersonalVecNumPlate(registeredNumPlate);
     });
     ;
 
@@ -234,7 +260,7 @@ class _PersonalVehicleRegFieldState extends State<PersonalVehicleRegField> {
               ),
               ElevatedButton(
                 onPressed: () {
-                  queryData();
+                  clearPersonalVecAlerts();
                 },
                 style: ElevatedButton.styleFrom(
                   shape: const CircleBorder(),
@@ -242,8 +268,7 @@ class _PersonalVehicleRegFieldState extends State<PersonalVehicleRegField> {
                   primary: Colors.cyan, // <-- Button color
                   onPrimary: Colors.white, // <-- Splash color
                 ),
-                child: const Icon(Icons.app_registration_rounded,
-                    color: Colors.white),
+                child: const Icon(Icons.clear, color: Colors.white),
               ),
             ]));
   }

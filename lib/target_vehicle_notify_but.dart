@@ -5,10 +5,12 @@ class TargetVehicleNotifyBut extends StatefulWidget {
   const TargetVehicleNotifyBut(
       {Key? key,
       required this.userEmail,
-      required this.targetVehicleNumPlateControl})
+      required this.targetVehicleNumPlateControl,
+      required this.personalVecNumPlate})
       : super(key: key);
 
   final String userEmail;
+  final String personalVecNumPlate;
   final TextEditingController targetVehicleNumPlateControl;
 
   @override
@@ -39,8 +41,47 @@ class _TargetVehicleNotifyButState extends State<TargetVehicleNotifyBut>
     controller.repeat(reverse: true);
   }
 
+  void displayAlert(errorMsg) {
+    color1 = Colors.redAccent;
+    color2 = Colors.red;
+    buttonStatus = Icons.error;
+
+    AlertDialog alert = AlertDialog(
+      title: const Text("Woops, error"),
+      content: Text(errorMsg),
+      actions: [
+        TextButton(
+            child: const Text("OK"),
+            onPressed: () {
+              Navigator.pop(context);
+              widget.targetVehicleNumPlateControl.clear();
+            }),
+      ],
+    );
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
   Future<void> alertTargetVehicle() async {
-    ;
+    print(
+        "widget.targetVehicleNumPlateControl.text ${widget.targetVehicleNumPlateControl.text}");
+    print("widget.personalVecNumPlate ${widget.personalVecNumPlate}");
+    print(
+        widget.targetVehicleNumPlateControl.text == widget.personalVecNumPlate);
+    if (widget.targetVehicleNumPlateControl.text ==
+        widget.personalVecNumPlate) {
+      displayAlert(
+          "Target Vehicle cannot be the same as your registered vehicle");
+      return;
+    }
+    if (widget.targetVehicleNumPlateControl.text == "") {
+      displayAlert("Please enter a vehicle number plate to send alert to");
+    }
+
     if (widget.targetVehicleNumPlateControl.text != "") {
       buttonStatus = Icons.pending;
       color1 = Colors.yellow.shade700;
@@ -63,29 +104,7 @@ class _TargetVehicleNotifyButState extends State<TargetVehicleNotifyBut>
           buttonStatus = Icons.check;
         }).catchError((error) => print('Update failed: $error'));
       } else {
-        color1 = Colors.redAccent;
-        color2 = Colors.red;
-        buttonStatus = Icons.error;
-
-        AlertDialog alert = AlertDialog(
-          title: const Text("Woops, error"),
-          content:
-              const Text("Target Vehicle is not registered on this platform."),
-          actions: [
-            TextButton(
-                child: const Text("OK"),
-                onPressed: () {
-                  Navigator.pop(context);
-                  widget.targetVehicleNumPlateControl.clear();
-                }),
-          ],
-        );
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return alert;
-          },
-        );
+        displayAlert("Target Vehicle is not registered on this platform.");
       }
     }
   }
