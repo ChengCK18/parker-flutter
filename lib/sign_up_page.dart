@@ -21,18 +21,17 @@ class _SignUpPageState extends State<SignUpPage> {
         title: const Text("Sign Up Successful!"),
         content: RichText(
           text: TextSpan(
-            // Note: Styles for TextSpans must be explicitly defined.
-            // Child text spans will inherit styles from parent
             style: const TextStyle(
               fontSize: 14.0,
               color: Colors.black,
             ),
             children: <TextSpan>[
-              TextSpan(text: 'Account has been created with '),
+              const TextSpan(text: 'Account has been created with '),
               TextSpan(
                   text: '${emailInputControl.text}.',
                   style: const TextStyle(fontWeight: FontWeight.bold)),
-              TextSpan(text: '\nYou can now login with the registered email.'),
+              const TextSpan(
+                  text: '\nYou can now login with the registered email.'),
             ],
           ),
         ),
@@ -53,7 +52,7 @@ class _SignUpPageState extends State<SignUpPage> {
       );
     } else {
       AlertDialog alert = AlertDialog(
-        title: Text("Woops, error"),
+        title: const Text("Woops, error"),
         content: Text(errorMessage),
         actions: [
           TextButton(
@@ -73,6 +72,7 @@ class _SignUpPageState extends State<SignUpPage> {
   }
 
   void verifySignUp() async {
+    // Verification steps for user's input when signing up an account
     if (passwordInputControl.text != passwordConfirmInputControl.text) {
       showAlert(false, "Password mismatched");
       return;
@@ -126,7 +126,6 @@ class _SignUpPageState extends State<SignUpPage> {
           errorMessage = "Too many requests to log into this account.";
           break;
         case "ERROR_OPERATION_NOT_ALLOWED":
-        case "operation-not-allowed":
           errorMessage = "Server error, please try again later.";
           break;
         case "ERROR_INVALID_EMAIL":
@@ -193,7 +192,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       ),
 
                       labelText: 'Email',
-                      labelStyle: TextStyle(color: Colors.white),
+                      labelStyle: const TextStyle(color: Colors.white),
                     ),
                   ),
                 ),
@@ -253,7 +252,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       ),
 
                       labelText: 'Reenter Password',
-                      labelStyle: TextStyle(color: Colors.white),
+                      labelStyle: const TextStyle(color: Colors.white),
                     ),
                   ),
                 ),

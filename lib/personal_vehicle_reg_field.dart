@@ -25,20 +25,20 @@ class _PersonalVehicleRegFieldState extends State<PersonalVehicleRegField> {
       FirebaseFirestore.instance.collection('vehicles');
 
   void registerVehicle() async {
+    //Cannot reregister again the same registered vehicle
     if (personalVehicleNumPlateControl.text == registeredNumPlate) {
       return;
     }
-
+    //remove user from other registered vehicle and add user to newly registered vehicle
     deregisterFromVehicles().then((value) {
-      print("Start of after deregisterFromVehicles");
-      final snapShot = FirebaseFirestore.instance
+      FirebaseFirestore.instance
           .collection('vehicles')
-          .doc("${personalVehicleNumPlateControl.text}") // varuId in your case
+          .doc(personalVehicleNumPlateControl.text) // varuId in your case
           .get()
           .then((snapShot) {
         if (!snapShot.exists) {
           //Create new document only if there is no existing record of the vehicle
-          vehicle.doc("${personalVehicleNumPlateControl.text}").set({
+          vehicle.doc(personalVehicleNumPlateControl.text).set({
             "listener": [widget.userEmail],
             "reporter": [],
             "dateAdded": DateTime.now()
@@ -68,14 +68,14 @@ class _PersonalVehicleRegFieldState extends State<PersonalVehicleRegField> {
 
   Future<void> deregisterFromVehicles() async {
     //To search for existing vehicle that was registered by user and remove user from it
-    print("Before deregisterFromVehicles");
+
     bool userRegistered = false;
     String userRegisteredVehicle = "";
 
     final querySnapshot =
         await FirebaseFirestore.instance.collection('vehicles').get();
     for (var doc in querySnapshot.docs) {
-      // Getting data directly
+      // Search for document id if user was registered on other vehicle
       List<dynamic> recUserEmail = doc.get('listener');
 
       for (var email in recUserEmail) {
@@ -95,9 +95,9 @@ class _PersonalVehicleRegFieldState extends State<PersonalVehicleRegField> {
       // remove user from other vehicle list
       await FirebaseFirestore.instance
           .collection('vehicles')
-          .doc("${userRegisteredVehicle}")
+          .doc(userRegisteredVehicle)
           .update({
-            'listener': FieldValue.arrayRemove(['${widget.userEmail}'])
+            'listener': FieldValue.arrayRemove([widget.userEmail])
           }) // <-- Updated data
           .then((_) => print('Removed user from other vehicle listener list'))
           .catchError((error) => print('Update failed: $error'));
@@ -110,7 +110,7 @@ class _PersonalVehicleRegFieldState extends State<PersonalVehicleRegField> {
       DocumentSnapshot doc = await docRef.get();
       final data = doc.data() as Map<String, dynamic>;
       print(
-          "NUMPLATE => ${userRegisteredVehicle} Listener => ${data["listener"]}");
+          "NUMPLATE => $userRegisteredVehicle Listener => ${data["listener"]}");
 
       if (data["listener"].isEmpty) {
         await docRef.delete().then(
@@ -120,23 +120,21 @@ class _PersonalVehicleRegFieldState extends State<PersonalVehicleRegField> {
         ;
       }
     }
-    print("After deregisterFromVehicles");
   }
 
   void clearPersonalVecAlerts() {
-    // set up the buttons
+    // Meant for user to acknowledge alerts received and remove them after.
     Widget noButton = TextButton(
-      child: Text("No"),
+      child: const Text("No"),
       onPressed: () {
         Navigator.pop(context);
       },
     );
     Widget yesButton = TextButton(
-      child: Text("Yes"),
+      child: const Text("Yes"),
       onPressed: () {
         var collection = FirebaseFirestore.instance.collection('vehicles');
         collection.doc(registeredNumPlate).update({'reporter': []}).then((_) {
-          print('Cleared alerts received');
           Navigator.pop(context);
         }).catchError((error) => print(
             'Cleared alerts received from existing vehicle failed: $error'));
@@ -145,8 +143,8 @@ class _PersonalVehicleRegFieldState extends State<PersonalVehicleRegField> {
 
     // set up the AlertDialog
     AlertDialog alert = AlertDialog(
-      title: Text("Clear Alerts?"),
-      content: Text(
+      title: const Text("Clear Alerts?"),
+      content: const Text(
           "Are you sure you would like to clear the alerts received on this registered vehicle?"),
       actions: [
         noButton,
@@ -164,7 +162,7 @@ class _PersonalVehicleRegFieldState extends State<PersonalVehicleRegField> {
   }
 
   Future<void> getUserRegisteredVehicle() async {
-    print("getUserRegisteredVehicle");
+    //To get the number plate of the user's registered vehicle
     bool userRegistered = false;
 
     await FirebaseFirestore.instance.collection('vehicles').get().then((query) {
@@ -186,12 +184,12 @@ class _PersonalVehicleRegFieldState extends State<PersonalVehicleRegField> {
           break;
         }
       }
-      print("getUserRegisteredVehicle ENDS");
     });
   }
 
   void listenToRegisteredVecAlert() async {
-    print("listenToRegisteredVecAlert");
+    // Constantly listen to changes in data to the user's registered vehicle
+    // Mainly to receive alerts from other user(s)
     if (registeredNumPlate != "") {
       final docRef = await FirebaseFirestore.instance
           .collection("vehicles")
@@ -206,7 +204,6 @@ class _PersonalVehicleRegFieldState extends State<PersonalVehicleRegField> {
         onError: (error) => print("Listen failed: $error"),
       );
     }
-    print("listenToRegisteredVecAlert ENDS");
   }
 
   @override

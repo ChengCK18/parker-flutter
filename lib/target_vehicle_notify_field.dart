@@ -25,7 +25,7 @@ class _TargetVehicleNotifyFieldState extends State<TargetVehicleNotifyField> {
                 child: TextFormField(
                   controller: widget.targetVehicleNumPlateControl,
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.white),
+                  style: const TextStyle(color: Colors.white),
                   decoration: const InputDecoration(
                     filled: true,
                     alignLabelWithHint: true,

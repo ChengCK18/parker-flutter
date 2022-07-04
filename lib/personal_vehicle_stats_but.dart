@@ -22,7 +22,7 @@ class _PersonalVehicleStatsButState extends State<PersonalVehicleStatsBut>
   late AnimationController controller;
   Color color1 = Colors.greenAccent;
   Color color2 = Colors.cyan;
-
+  //Color based on the user's online/offline status
   @override
   void initState() {
     super.initState();
@@ -48,6 +48,7 @@ class _PersonalVehicleStatsButState extends State<PersonalVehicleStatsBut>
     }
 
     if (widget.personalOnline && widget.personalVecAlertReceived > 0) {
+      //Change button to red if registered vehicle received alerts from other user
       color1 = Colors.redAccent;
       color2 = Colors.red;
     }

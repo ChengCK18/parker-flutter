@@ -11,13 +11,12 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  // Textform field controller for email and password input
   final emailInputControl = TextEditingController(text: "");
   final passwordInputControl = TextEditingController(text: "");
-  bool dispTac = false;
-
-  FirebaseAuth auth = FirebaseAuth.instance;
 
   void showAlert(success, [errorMessage]) {
+    //A function to display error message using popup dialog to user
     if (!success) {
       AlertDialog alert = AlertDialog(
         title: const Text("Woops, error"),
@@ -40,6 +39,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<bool> loginVerification() async {
+    //To perform login credential authentication
     if (emailInputControl.text == "") {
       showAlert(false, "Email field cannot be empty");
       return false;
@@ -50,36 +50,23 @@ class _LoginPageState extends State<LoginPage> {
     }
 
     try {
-      UserCredential userCredential = await FirebaseAuth.instance
+      var userCredential = await FirebaseAuth.instance
           .signInWithEmailAndPassword(
               email: emailInputControl.text,
               password: passwordInputControl.text);
 
-      FirebaseAuth.instance.authStateChanges().listen((User? user) {
-        if (user != null && !user.emailVerified) {
-          AlertDialog alert = AlertDialog(
-            title: const Text("Woops, error"),
-            content: const Text("Email is not verified"),
-            actions: [
-              TextButton(
-                  child: const Text("OK"),
-                  onPressed: () {
-                    Navigator.pop(context);
-                  }),
-            ],
-          );
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return alert;
-            },
-          );
-        }
-      });
+      var user = userCredential.user;
+
+      //Check if registered email has been verfied, reject if not verified.
+      if (user != null && !user.emailVerified) {
+        showAlert(false, "Email is not verified");
+        return false;
+      }
 
       return true;
     } on FirebaseAuthException catch (e) {
       String errorMessage = "";
+      //List of possible error scenarios when logging in
       switch (e.code) {
         case "ERROR_WRONG_PASSWORD":
         case "wrong-password":
@@ -98,7 +85,6 @@ class _LoginPageState extends State<LoginPage> {
           errorMessage = "Too many requests to log into this account.";
           break;
         case "ERROR_OPERATION_NOT_ALLOWED":
-        case "operation-not-allowed":
           errorMessage = "Server error, please try again later.";
           break;
         case "ERROR_INVALID_EMAIL":
@@ -115,10 +101,11 @@ class _LoginPageState extends State<LoginPage> {
       }
       showAlert(false, errorMessage);
     }
-    return false;
+    return false; //error occured, return false for failed verification
   }
 
   void signUp() {
+    //Guide user to the sign up page for account registration
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const SignUpPage()),
@@ -138,7 +125,7 @@ class _LoginPageState extends State<LoginPage> {
                 const Padding(
                   padding: EdgeInsets.only(bottom: 20),
                   child: Text(
-                    "App Name",
+                    "WIP",
                     style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -205,26 +192,19 @@ class _LoginPageState extends State<LoginPage> {
                   padding: const EdgeInsets.only(right: 20),
                   child: ElevatedButton(
                     onPressed: () {
-                      // loginVerification().then((loggedIn) {
-                      //   if (loggedIn) {
-                      //     String userEmail = emailInputControl.text;
-                      //     Navigator.push(
-                      //       context,
-                      //       MaterialPageRoute(
-                      //           builder: (context) =>
-                      //               MyHomePage(title: "Welcome, ${userEmail}")),
-                      //     );
-                      //     emailInputControl.clear();
-                      //     passwordInputControl.clear();
-                      //   }
-                      // });
-                      String userEmail = emailInputControl.text;
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) =>
-                                MyHomePage(userEmail: "${userEmail}")),
-                      );
+                      loginVerification().then((loggedIn) {
+                        if (loggedIn) {
+                          String userEmail = emailInputControl.text;
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    MyHomePage(userEmail: userEmail)),
+                          );
+                          emailInputControl.clear();
+                          passwordInputControl.clear();
+                        }
+                      });
                     },
                     style: ElevatedButton.styleFrom(
                       primary: Colors.cyan, // background

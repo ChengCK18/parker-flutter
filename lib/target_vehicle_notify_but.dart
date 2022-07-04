@@ -42,6 +42,7 @@ class _TargetVehicleNotifyButState extends State<TargetVehicleNotifyBut>
   }
 
   void displayAlert(errorMsg) {
+    //A function to display error message using popup dialog to user
     color1 = Colors.redAccent;
     color2 = Colors.red;
     buttonStatus = Icons.error;
@@ -67,11 +68,7 @@ class _TargetVehicleNotifyButState extends State<TargetVehicleNotifyBut>
   }
 
   Future<void> alertTargetVehicle() async {
-    print(
-        "widget.targetVehicleNumPlateControl.text ${widget.targetVehicleNumPlateControl.text}");
-    print("widget.personalVecNumPlate ${widget.personalVecNumPlate}");
-    print(
-        widget.targetVehicleNumPlateControl.text == widget.personalVecNumPlate);
+    // To transmit alert to target vehicle after verification steps
     if (widget.targetVehicleNumPlateControl.text ==
         widget.personalVecNumPlate) {
       displayAlert(
@@ -93,11 +90,8 @@ class _TargetVehicleNotifyButState extends State<TargetVehicleNotifyBut>
 
       if (snapShot.exists) {
         var collection = FirebaseFirestore.instance.collection('vehicles');
-        collection
-            .doc(
-                "${widget.targetVehicleNumPlateControl.text}") // <-- Doc ID where data should be updated.
-            .update({
-          'reporter': FieldValue.arrayUnion(['${widget.userEmail}'])
+        collection.doc(widget.targetVehicleNumPlateControl.text).update({
+          'reporter': FieldValue.arrayUnion([widget.userEmail])
         }).then((_) {
           color1 = Colors.greenAccent;
           color2 = Colors.cyan;
@@ -122,8 +116,6 @@ class _TargetVehicleNotifyButState extends State<TargetVehicleNotifyBut>
               buttonStatus = Icons.notifications;
             });
           });
-
-          print("Container clicked");
         },
         child: Ink(
           height: 48,

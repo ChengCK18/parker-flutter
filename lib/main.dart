@@ -23,17 +23,17 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'WIP',
       theme: ThemeData(
           textTheme: const TextTheme(
             bodyText1: TextStyle(), //TBD
-            bodyText2: TextStyle(), //TBD
+            bodyText2: TextStyle(),
           ).apply(
             bodyColor: Colors.white,
             displayColor: Colors.blue,
           ),
           scaffoldBackgroundColor: const Color(0xff10002b)),
-      home: const MyHomePage(userEmail: "dummy@gmail.com"),
+      home: const LoginPage(),
     );
   }
 }
@@ -50,19 +50,22 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   TextEditingController targetVehicleNumPlateControl = TextEditingController();
 
-  bool personalOnline = true;
-  String personalVecNumPlate = "";
-  int personalVecAlertReceived = 0;
-
-  CollectionReference users = FirebaseFirestore.instance.collection('users');
+  bool personalOnline = true; //Check if user is in online state or not
+  String personalVecNumPlate = ""; //For user's registered vehicle number plate
+  int personalVecAlertReceived =
+      0; //Amount of alerts received on the registered vehicle
 
   void updatePersonalOnline() {
+    //Called by PersonalVehicleStatsBut widget
+    //Switch user to online/offline upon button press
     setState(() {
       personalOnline = !personalOnline;
     });
   }
 
   void updatePersonalVecNumPlate(value) {
+    //Called by PersonalVehicleRegField widget
+    //Update user's registered vehicle number plate
     if (value != personalVecNumPlate) {
       //Only setState when value changes
       setState(() {
@@ -72,6 +75,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void updatePersonalVecAlertReceived(value) {
+    //Called by PersonalVehicleRegField widget
+    //Update total alerts received by user's registered vehicle number plate
     if (value != personalVecAlertReceived) {
       //Only setState when value changes
       setState(() {
@@ -86,6 +91,7 @@ class _MyHomePageState extends State<MyHomePage> {
     String userStatus = personalOnline ? "Online" : "Offline";
     String userStatusAlertNum = "";
     if (personalOnline) {
+      //Only display amount of alerts on registered vehicle if user is online
       userStatusAlertNum = "(${personalVecAlertReceived.toString()})";
     }
 
@@ -101,7 +107,7 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            Text("${personalVecNumPlate}"),
+            Text(personalVecNumPlate),
             const SizedBox(height: 10),
             Expanded(
               flex: 1,
@@ -114,8 +120,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
-                            Text(
-                                'Personal ➡ ${userStatus} ${userStatusAlertNum}')
+                            Text('Personal ➡ $userStatus $userStatusAlertNum')
                           ],
                         ),
                       ])),
